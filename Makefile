@@ -1,13 +1,13 @@
 CXX=g++
-CPPFLAGS= -std=c++17 -O3 -g
+CXXFLAGS= -std=c++17 -O3 -g
 LINKFLAGS=-O3 -lglfw -lGLU -lGL -ldl -lpthread
 
 #debug = true
 ifdef debug
-	CPPFLAGS +=-g
+	CXXFLAGS +=-g
 	LINKFLAGS += -flto
 endif
-
+# LIB ---
 GLADVER=glad
 GLADDIR=lib/$(GLADVER)
 GLADLIB=$(patsubst %, -I%, $(GLADDIR))
@@ -26,13 +26,16 @@ GLMLIB:=$(patsubst %, -I%,$(GLMDIR))
 
 LIBDIR=-Ilib$(GLADLIB)$(GLEWLIB)$(GLFWLIB)$(GLMLIB)
 
+# SRC, OBJ ---
 SRCDIR=src
-SRCDIRS=$(wildcard $(SRCDIR)/*)
-SRCLIST=$(wildcard $(SRCDIR)/*/*.cpp)
+SRCDIRS=$(dir $(wildcard $(SRCDIR)/*)) $(dir $(wildcard $(SRCDIR)/*/*))
+SRCLIST=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(SRCDIR)/*/*/*.cpp)
+SRCSOURCE=$(addprefix $(SRCDIRS)/%.cpp)
+
 OBJDIR=obj
 OBJLIST=$(addprefix $(OBJDIR)/,$(notdir $(SRCLIST:.cpp=.o))) $(OBJDIR)/glad.o
 
-VPATH=$(SRCDIRS)
+VPATH=$(SRCDIR) $(SRCDIRS)
 INCDIR:=$(patsubst %, -I%,$(SRCDIRS))
 
 EXECUTABLE= program.out
@@ -46,12 +49,16 @@ $(EXECUTABLE): $(OBJLIST)
  
 #glad
 $(OBJDIR)/glad.o: $(GLADDIR)/glad.c
-	$(CXX) -c $(CPPFLAGS) $(LIBDIR) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(LIBDIR) $< -o $@
 
-#all other cpp files
-$(OBJDIR)/%.o: %.cpp
+$(OBJDIR)/%.o : %.cpp
 	$(CXX) -c $(CPPFLAGS) $(INCDIR) $(LIBDIR) $< -o $@ 
 
+#all other cpp files
+#loopmake :
+#	$(foreach srcfile, $(SRCLIST), $(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIR) $(srcfile) -o $(addprefix $(OBJDIR)/,$(notdir $(srcfile:.cpp=.o)));)
+
+#----------------------------------------------------------
 
 .PHONY: buildDirectories
 buildDirectories:
