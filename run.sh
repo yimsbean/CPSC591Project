@@ -1,7 +1,8 @@
 #!/usr/bin/bash 
 #Compile
 newline(){    
-    cat images/ascii.art
+    #cat images/ascii.art
+    echo "STARTING PROGRAM..."
     printf "\n$1"
 }
 

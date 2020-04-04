@@ -1,55 +1,65 @@
 #pragma once
-/*
- * Program.h
- *	Base class of a rendering program. Has a scene to render, a rendering engine and a window to render to.
- *  Created on: Sep 10, 2018
- *  Author: John Hall
- */
 
-//**Must include glad and GLFW in this order or it breaks**
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <iostream>
+#include <string>
 
-#include "imagebuffer.h"
-
-#include "Intersections.h"
-#include "Camera.h"
-#include "Loader.h"
-//Forward declaration of classes
-//(note this is necessary because these are pointers and it allows the #include to appear in the .cpp file)
+#include "Constants.h"
+#include "World.h"
 struct GLFWwindow;
 
+namespace Engine{
+//process I/O related things
 class Program {
-public:
-	Program();
-	virtual ~Program();
+	public:
+		bool		isShiftPressed = false;
+		bool		isMousePressed = false;
+		bool		isDrawingFinished = true;
+		glm::vec2	mouseLocation = glm::vec2(0.f);
+		
+		Program();
+		virtual ~Program();
 
-	//Creates the rendering engine and the scene and does the main draw loop
-	void start();
+		//Creates the rendering engine and the scene and does the main draw loop
+		void 
+		start();
 
-	//Initializes GLFW and creates the window
-	void setupWindow();
+		World* 
+		getWorld() { return world; }
 
-	//Prints system specs to the console
-	void QueryGLVersion();
+		void 
+		reload();
+	private:
+		GLFWwindow* window = nullptr;
+		World* world = nullptr;
 
-	void draw();
+		//ImageBuffer image;
+		//Intersections intersect;
+		//Loader load;
+		//Initializes GLFW and creates the window
+		void 
+		setupWindow();
 
-	void loadScene1();
-	void loadScene2();
-	void loadScene3();
-	void reload();
-	void initialize();
-	ImageBuffer getImage() { return image;};
-
-private:
-	GLFWwindow* window;
-    ImageBuffer image;
-	Intersections intersect;
-	Loader load;
+		void 
+		QueryGLVersion();
+		
+		void 
+		destroyWindow();
 };
 
 //Functions passed to GLFW to handle errors and keyboard input
 //Note, GLFW requires them to not be member functions of a class
-void ErrorCallback(int error, const char* description);
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void 
+ErrorCallback(int error, const char* description);
+
+void 
+KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+void 
+MouseCallback(GLFWwindow* window,int button, int action, int mods);
+
+void 
+MousePositionCallback(GLFWwindow* window,double xpos,double ypos);
+
+void 
+MouseScrollCallback(GLFWwindow* window,double xoffset,double yoffset);
+}

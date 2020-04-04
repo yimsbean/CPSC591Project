@@ -1,6 +1,6 @@
 CXX=g++
-CXXFLAGS= -std=c++17 -O3 -g
-LINKFLAGS=-O3 -lglfw -lGLU -lGL -ldl -lpthread
+CXXFLAGS= -std=c++17 -O3 -g 
+LINKFLAGS= -lglfw -lGLU -lGL -ldl -lpthread
 
 #debug = true
 ifdef debug
@@ -28,7 +28,7 @@ LIBDIR=-Ilib$(GLADLIB)$(GLEWLIB)$(GLFWLIB)$(GLMLIB)
 
 # SRC, OBJ ---
 SRCDIR=src
-SRCDIRS=$(dir $(wildcard $(SRCDIR)/*)) $(dir $(wildcard $(SRCDIR)/*/*))
+SRCDIRS=$(sort $(dir $(wildcard $(SRCDIR)/*)) $(dir $(wildcard $(SRCDIR)/*/*)))
 SRCLIST=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(SRCDIR)/*/*/*.cpp)
 SRCSOURCE=$(addprefix $(SRCDIRS)/%.cpp)
 
@@ -45,14 +45,14 @@ EXECUTABLE= program.out
 all: buildDirectories $(EXECUTABLE) 
 
 $(EXECUTABLE): $(OBJLIST) 
-	$(CXX) $(LINKFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIR)
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIR)
  
 #glad
 $(OBJDIR)/glad.o: $(GLADDIR)/glad.c
 	$(CXX) -c $(CXXFLAGS) $(LIBDIR) $< -o $@
 
 $(OBJDIR)/%.o : %.cpp
-	$(CXX) -c $(CPPFLAGS) $(INCDIR) $(LIBDIR) $< -o $@ 
+	$(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIR) $< -o $@ 
 
 #all other cpp files
 #loopmake :

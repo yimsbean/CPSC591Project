@@ -1,30 +1,4 @@
-# ============================================================
-# Scene Two for Ray Tracing
-# CPSC 453 - Assignment #4 - Winter 2016
-#
-# This file contains the geometry of the scene only.
-# No materials are specified.
-#
-# Instructions for reading this file:
-#   - lines beginning with ‘#’ are comments
-#   - all objects are expressed in the camera reference frame
-#   - objects are described with the following parameters:
-#      - point light source has a single position
-#      - sphere has a centre and radius
-#      - plane has a unit normal and a point on the plane
-#      - triangle has positions of its three corners, in
-#        counter-clockwise order
-#   - syntax of the object specifications are as follows:
-#   - c1~3 stands for colour
-#   - iR stands for is-Reflective
-#      light    { x  y  z  }
-#      sphere   { x  y  z   r  c1 c2 c3  iR }
-#      plane    { xn yn zn  xq yq zq  c1 c2 c3  iR }
-#      triangle { x1 y1 z1  x2 y2 z2  x3 y3 z3  c1 c2 c3  iR }
-#
-# Feel free to modify or extend this scene file to your desire
-# as you complete your ray tracing system.
-# ============================================================
+# NEED TO CONVERT FORMAT!
 
 light {
   4 6 -1
