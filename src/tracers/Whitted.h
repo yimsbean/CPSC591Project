@@ -6,35 +6,26 @@
 //	See the file COPYING.txt for the full license.
 
 
-#include "Constants.h"
-#include "Ray.h"
-#include "Color.h"
+#include "Tracer.h"
 
 namespace Engine{
-	
-class World;
-
-class Tracer {
+class Whitted: public Tracer {
 	public:
-	
-		Tracer(void);									
 		
-		Tracer(World* _world_ptr);						
-				
+		Whitted(int maxDepth);
+		
+		Whitted(World* _worldPtr, int maxDepth);
+		
 		virtual											
-		~Tracer(void);									
-
-		virtual Color			// only overridden in the tracers SingleSphere and MultipleObjects
-		trace_ray(const Ray& ray) const;
-
+		~Whitted(void);
+	
 		virtual Color	
 		trace_ray(const Ray ray, const int depth) const;
 
 		virtual Color	
 		trace_ray(const Ray ray, float& tmin, const int depth) const;
-				
-	protected:
-	
-		World* world_ptr;
+    private:
+        int maxDepth;
 };
+
 }

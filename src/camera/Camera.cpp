@@ -7,17 +7,17 @@ namespace Engine{
 
 //constructor
 Camera::Camera():
-	eye(glm::vec3(0.f,0.f,10.f)),
-	lookat(glm::vec3(0.f,0.f,-15.f)),
-	up(glm::vec3(0.f,1.f, 0.f)),
+	eye(glm::vec3(1.f,1.f,1.f)),
+	lookat(glm::vec3(0.f,0.f,0.f)),
+	up(glm::vec3(0.f,1.f,0.f)),
 	fov(M_PI/4)
-{recalc_up();}
+{recalc_up();save_init_values();}
 Camera::Camera(const Camera& c):
 	eye(c.eye),
 	lookat(c.lookat),
 	up(c.up),
 	fov(c.fov)
-{}
+{save_init_values();}
 
 //destructor
 Camera::~Camera() 
@@ -44,11 +44,19 @@ Camera::clone(void) const {
 //reset back to initial value
 void
 Camera::reset(){
-	eye = glm::vec3(0.f,0.f,10.f);
-	lookat = glm::vec3(0.f,0.f,-15.f);
-	up = glm::vec3(0.f,1.f, 0.f);
-	fov = M_PI/4;
+	eye = init_eye;
+	lookat = init_lookat;
+	up = init_up;
+	fov = init_fov;
 	recalc_up();
+	save_init_values();
+}
+void
+Camera::save_init_values(){
+	init_eye = eye;
+	init_lookat = lookat;
+	init_up = up;
+	init_fov = fov;
 }
 
 void

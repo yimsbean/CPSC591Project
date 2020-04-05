@@ -142,13 +142,6 @@ Triangle::calculate_normal() {
 	normal = glm::normalize(
 				glm::cross(p2 - p1,p3 - p1)
 			);
-	std::cout<<
-		"p1 : [" << p1.x <<","<< p1.y <<","<< p1.z <<"] "<<
-		"p2 : [" << p2.x <<","<< p2.y <<","<< p2.z <<"] "<<
-		"p3 : [" << p3.x <<","<< p3.y <<","<< p3.z <<"] "<<
-		"p2 - p1 : [" << (p2 - p1).x <<","<< (p2 - p1).y <<","<< (p2 - p1).z <<"] "<<
-		"p3 - p1 : [" << (p3 - p1).x <<","<< (p3 - p1).y <<","<< (p3 - p1).z <<"] "<<
-		"n  : [" << normal.x <<","<< normal.y <<","<< normal.z <<"]\n";
 }
 
 }

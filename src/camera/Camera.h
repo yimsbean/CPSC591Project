@@ -50,7 +50,7 @@ class Camera {
 		set_up(const float x, const float y, const float z);
 
 		void
-		set_up_fov(const float f);
+		set_fov(const float f);
 
 		//reset back to initial value
 		void
@@ -89,9 +89,16 @@ class Camera {
 		glm::vec3			up;					// up vector
 		float				fov;
 	
+		glm::vec3			init_eye;				// eye point
+		glm::vec3			init_lookat; 			// lookat point
+		glm::vec3			init_up;					// up vector
+		float				init_fov;
 	//@basics(constructor, desturctor, ...)
 
 	//@functions
+		void
+		save_init_values();
+		
 		void 
 		recalc_up();
 };
@@ -126,10 +133,12 @@ Camera::get_direction(glm::vec2 in) {
 inline void
 Camera::set_eye(const glm::vec3& p) {
 	eye = p;
+	save_init_values();
 }
 inline void
 Camera::set_eye(const float x, const float y, const float z) {
 	eye.x = x; eye.y = y; eye.z = z;
+	save_init_values();
 }
 
 
@@ -137,10 +146,12 @@ Camera::set_eye(const float x, const float y, const float z) {
 inline void
 Camera::set_lookat(const glm::vec3& p) {
 	lookat = p;
+	save_init_values();
 }
 inline void
 Camera::set_lookat(const float x, const float y, const float z) {
 	lookat.x = x; lookat.y = y; lookat.z = z;
+	save_init_values();
 }
 
 
@@ -148,16 +159,19 @@ Camera::set_lookat(const float x, const float y, const float z) {
 inline void
 Camera::set_up(const glm::vec3& u) {
 	up = u;
+	save_init_values();
 }
 inline void
 Camera::set_up(const float x, const float y, const float z) {
 	up.x = x; up.y = y; up.z = z;
+	save_init_values();
 }
 
 // ----------------------------------------------------------------- set_fov
 inline void
-Camera::set_up_fov(const float f) {
+Camera::set_fov(const float f) {
 	fov = f;
+	save_init_values();
 }
 
 

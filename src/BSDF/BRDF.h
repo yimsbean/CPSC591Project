@@ -8,6 +8,7 @@
 #include "Color.h"
 
 namespace Engine{
+//bidirectional reflectance distribution function
 class BRDF {
 	public:
 	//@variables

@@ -15,5 +15,8 @@
 
 #define EPSILON 0.0001
 
+#include <iostream>
 #define DEBUG_CAMERA false
-#define DEBUG false
+#define DEBUG_RENDER_COLOR false
+#define DEBUG_TIME true
+//#define DEBUG true

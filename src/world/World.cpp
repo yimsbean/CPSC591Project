@@ -1,5 +1,8 @@
 #include "World.h"
 
+//#include "RayCast.h"
+#include "Whitted.h"
+
 #include "Triangle.h"
 #include "Sphere.h"
 #include "Plane.h"
@@ -7,7 +10,9 @@
 
 #include "Matte.h"
 #include "Phong.h"
+#include "Reflective.h"
 #include "Bubble.h"	//CORE MATERIAL!
+
 
 #include <fstream>
 #include <sstream>
@@ -26,7 +31,8 @@ World::~World()
 
 void 
 World::initialize(){
-	tracer_ptr = new RayCast(this);
+	//SPECIFY TRACER
+	tracer_ptr = new Whitted(this,10);
 	loadScene(1);
 }
 void 
@@ -49,41 +55,28 @@ World::draw(){
 	auto t1 = std::chrono::high_resolution_clock::now();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	Color		L; 								
 	Ray			ray;
-	int 		depth = 2;  
-	//glm::vec2 	pp;		// sample point on a pixel
-	//int n = (int)sqrt((float)vp.num_samples);
-	//int n = 1;
+	int 		depth = 0;
+
 	ray.o = camera.get_eye();
-	//std::cout<<ray.o.x <<", " <<ray.o.y <<", " <<ray.o.z <<"\n";
 	for (int r = 0; r < HEIGHT; r++){			// up
 		for (int c = 0; c < WIDTH; c++) {		// across 					
 			L = black; 
 			ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
-			//std::cout<<"("<<r<<", "<<c<<"), ["<<ray.d.x<<", "<<ray.d.y<<", "<<ray.d.z<<"]\n";	
+			//TIME CONSUMING(most time consuming(>95%))
 			L += tracer_ptr->trace_ray(ray, depth);
-			//sampling
-			/*
-			for (int p = 0; p < n; p++){			// up pixel
-				for (int q = 0; q < n; q++) {	// across pixel
-					pp.x = (c - 0.5 * WIDTH + (q + 0.5) / n); 
-					pp.y = (r - 0.5 * HEIGHT + (p + 0.5) / n);
-					ray.d = camera.get_direction(pp);
-					L += tracer_ptr->trace_ray(ray, depth);
-				}	
-			}
-			*/
-			//std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
-			if(DEBUG){
+
+			if(DEBUG_RENDER_COLOR){
 				if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f)
 					std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
-			}	
+			}
 			image.SetPixel(c, r, glm::vec3(L.r,L.g,L.b));
 		} 
 	}
 	image.Render();
-	if(DEBUG){
+	if(DEBUG_TIME){
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
 		std::cout<<"Drawing Finished : "<< duration <<"ms\n";
@@ -125,19 +118,18 @@ World::hit_objects(const Ray& ray) {
 		sr.normal = normal;
 		sr.local_hit_point = local_hit_point;
 	}
-		
 	return(sr);   
 }
 void
 World::readFromSceneFile(const char* fileName){
 	//0. AMBIENT LIGHT
     Ambient* amb_ptr = new Ambient;
-	amb_ptr->scale_radiance(0.6);
+	amb_ptr->scale_radiance(0.5);
 	ambient_ptr = amb_ptr;
 	//1. BACKGROUND COLOUR
 	background_color = Color(0.1f,0.1f,0.1f);
 
-	//LOAD FROM FILE
+	//2. LOAD FROM FILE(json)
     std::ifstream i(fileName);
     if(i.fail()){ std::cerr<<"ERROR IN READING JSON FILE\n";exit(1);}
     nlohmann::json j;
@@ -145,7 +137,17 @@ World::readFromSceneFile(const char* fileName){
 	if(j.empty()) return;
 	std::string temp;
     for (auto& element : j.items()) {
-		if(element.key() == "lights"){
+		//LOAD CAMERA
+		if(element.key() == "camera"){
+			//__comment, eye, lookat, up, fov
+			auto elm = element.value();
+			camera.set_eye(elm["eye"][0].get<float>(),elm["eye"][1].get<float>(),elm["eye"][2].get<float>());
+			camera.set_lookat(elm["lookat"][0].get<float>(),elm["lookat"][1].get<float>(),elm["lookat"][2].get<float>());
+			camera.set_up(elm["up"][0].get<float>(),elm["up"][1].get<float>(),elm["up"][2].get<float>());
+			camera.set_fov(elm["fov"].get<float>());
+		}
+		//LOAD LIGHTS
+		else if(element.key() == "lights"){
 			//__comment, type, geometry, strength
 			for(auto& elm : element.value()){
 				if(elm["type"] == "point"){
@@ -159,6 +161,7 @@ World::readFromSceneFile(const char* fileName){
 				}
 			}
 		}
+		//LOAD OBJECTS
 		else if(element.key() == "objects"){
 			//__comment, type, geometry, color, material
 			for(auto& elm : element.value()){
@@ -171,10 +174,25 @@ World::readFromSceneFile(const char* fileName){
 					);
 					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
 					//obj->set_color(color);
-					Matte* matte = new Matte();
-					matte->set_cd(color);
-					matte->set_kd(0.5f);
-					obj->set_material(matte);
+					Material* mat;
+					if(elm["material"] == "reflective"){
+						Reflective* matte = new Reflective();
+						matte->set_ka(0.25); 
+						matte->set_kd(0.5);
+						matte->set_cd(color);
+						//matte->set_ks(0.15);
+						//matte->set_exp(100.0);
+						matte->set_kr(0.75);
+						matte->set_cr(color);
+						mat = matte;
+					}
+					else{
+						Matte* matte = new Matte();
+						matte->set_cd(color);
+						matte->set_kd(0.5f);
+						mat = matte;
+					}
+					obj->set_material(mat);
 					objects.push_back(obj);
 				}
 				else if(elm["type"] == "sphere"){
@@ -185,11 +203,40 @@ World::readFromSceneFile(const char* fileName){
 					);
 					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
 					//obj->set_color(color);
-					//if(elm["material"] == "bubble")
-					Matte* matte = new Matte();
-					matte->set_cd(color);
-					matte->set_kd(0.5f);
-					obj->set_material(matte);
+					Material* mat;
+					if(elm["material"] == "bubble"){
+						Bubble* matte = new Bubble();
+						/*
+						matte->set_ka(0.25); 
+						matte->set_kd(0.5);
+						matte->set_cd(color);
+						matte->set_kr(0.75);
+						matte->set_cr(color);
+						*/
+						matte->set_eta_in(1.5);
+						matte->set_eta_out(1.0);
+						matte->set_cf_in(white);
+						matte->set_cf_out(Color((int)0xEEEEEEEE));
+						mat = matte;
+					}
+					else if(elm["material"] == "reflective"){
+						Reflective* matte = new Reflective();
+						matte->set_ka(0.25); 
+						matte->set_kd(0.5);
+						matte->set_cd(color);
+						//matte->set_ks(0.15);
+						//matte->set_exp(100.0);
+						matte->set_kr(0.75);
+						matte->set_cr(color);
+						mat = matte;
+					}
+					else{
+						Matte* matte = new Matte();
+						matte->set_cd(color);
+						matte->set_kd(0.5f);
+						mat = matte;
+					}
+					obj->set_material(mat);
 					objects.push_back(obj);
 
 				}
@@ -201,10 +248,25 @@ World::readFromSceneFile(const char* fileName){
 					);
 					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
 					//obj->set_color(color);
-					Matte* matte = new Matte();
-					matte->set_cd(color);
-					matte->set_kd(0.5f);
-					obj->set_material(matte);
+					Material* mat;
+					if(elm["material"] == "reflective"){
+						Reflective* matte = new Reflective();
+						matte->set_ka(0.25); 
+						matte->set_kd(0.5);
+						matte->set_cd(color);
+						//matte->set_ks(0.15);
+						//matte->set_exp(100.0);
+						matte->set_kr(0.75);
+						matte->set_cr(color);
+						mat = matte;
+					}
+					else{
+						Matte* matte = new Matte();
+						matte->set_cd(color);
+						matte->set_kd(0.5f);
+						mat = matte;
+					}
+					obj->set_material(mat);
 					objects.push_back(obj);
 				}
 			}	

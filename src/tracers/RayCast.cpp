@@ -55,4 +55,10 @@ RayCast::trace_ray(const Ray ray, const int depth) const {
 	}
 }
 
+Color
+RayCast::trace_ray(const Ray ray, float& tmin, const int depth) const{
+	return trace_ray(ray,depth);
+}
+
+
 }

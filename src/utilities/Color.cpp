@@ -52,4 +52,11 @@ Color::operator= (const Color& rhs) {
 	a = rhs.a; r = rhs.r; g = rhs.g; b = rhs.b;
 	return (*this);
 }
+
+Color
+Color::powc(float p) const {
+	return (Color(std::pow(r, p), std::pow(g, p), std::pow(b, p)));
+}
+
+
 }

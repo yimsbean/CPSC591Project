@@ -43,7 +43,13 @@ class Color {
 		operator* (const Color& c) const;
 		
 		bool												// are two RGBColours the same?
-		operator== (const Color& c) const;					
+		operator== (const Color& c) const;		
+
+		Color											// raise components to a power
+		powc(float p) const;
+		
+		float												// the average of the components
+		average(void) const;			
 };
 
 static const Color black = Color(0.f,0.f,0.f);
@@ -148,6 +154,11 @@ Color::operator== (const Color& c) const {
 inline Color 
 operator* (const float a, const Color& c) {
 	return (Color (a * c.r, a * c.g, a * c.b));	
+}
+
+inline float											
+Color::average(void) const {
+	return (0.333333333333 * (r + g + b));
 }
 
 }

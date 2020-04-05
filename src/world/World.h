@@ -20,9 +20,8 @@
 
 #include "Camera.h"
 #include "Ray.h"
-#include "RayCast.h"
+
 #include "Tracer.h"
-#include "ViewPlane.h"
 
 //for functions
 #include "Imagebuffer.h"
@@ -35,7 +34,6 @@ class Object; //pointer
 class World {
 public:
     int currentScene = 1;
-    ViewPlane			vp;
     Color				background_color = black;
 
     ImageBuffer         image;

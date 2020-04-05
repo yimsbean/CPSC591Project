@@ -43,6 +43,12 @@ Color
 Tracer::trace_ray(const Ray ray, const int depth) const {
 	return (black);
 }
+
+Color	
+Tracer::trace_ray(const Ray ray, float& tmin, const int depth) const {
+	return (black);
+}
+
 }
 
 

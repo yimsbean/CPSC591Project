@@ -16,10 +16,9 @@ Program::start() {
 	//Main render loop
 	while(!glfwWindowShouldClose(window)) {
 		//world->draw();
+		glfwWaitEventsTimeout(1);
 		glfwSwapBuffers(window);
 		//glfwPollEvents();
-		glfwWaitEvents();
-		glfwWaitEventsTimeout(1);
 	}
 }
 //private ---------
@@ -41,8 +40,8 @@ Program::setupWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	int width = 960;
-	int height = 540;
+	int width = 640;
+	int height = 480;
 	window = glfwCreateWindow(width, height, "CPSC 591 Project", 0, 0);
 	if (!window) {
 		std::cout << "Program failed to create GLFW window, TERMINATING" << std::endl;
@@ -136,13 +135,13 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			
 			//moving "eye" on the surface of "view" sphere
 			case GLFW_KEY_UP:
-				camera.add_camera(0.f, -DEGREE);break;
-			case GLFW_KEY_DOWN:
 				camera.add_camera(0.f, DEGREE);break;
+			case GLFW_KEY_DOWN:
+				camera.add_camera(0.f, -DEGREE);break;
 			case GLFW_KEY_LEFT:
-				camera.add_camera(DEGREE, 0.f);break;
-			case GLFW_KEY_RIGHT:
 				camera.add_camera(-DEGREE, 0.f);break;
+			case GLFW_KEY_RIGHT:
+				camera.add_camera(DEGREE, 0.f);break;
 				//zooming in/out "view" sphere
 			case GLFW_KEY_PAGE_UP:
 				camera.add_zoom(-DEGREE);break;
