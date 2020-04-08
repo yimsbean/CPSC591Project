@@ -30,6 +30,8 @@ class Plane : public Object{
         virtual bool 
 		hit(const Ray& ray, double& tmin, ShadeRec& sr) const;		 					 
 		
+        virtual glm::vec3
+		get_center();
     private:
     //@variables
         glm::vec3   point;

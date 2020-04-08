@@ -57,7 +57,9 @@ public:
     //  - (0,0) is the bottom-left pixel of the image
     //  - colour is RGB given as floating point numbers in the range [0,1]
     void SetPixel(int x, int y, glm::vec3 colour);
-
+    void AdditiveBlendPixel(int x, int y, glm::vec3 colour);
+    void MultiplicativeBlendPixel(int x, int y, glm::vec3 colour);
+    void SetPixelColourInRange(int index);
     // call this in your render function to copy this image onto your screen
     void Render();
 

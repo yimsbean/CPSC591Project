@@ -84,22 +84,12 @@ Color
 Matte::shade(ShadeRec& sr) {
 	glm::vec3 	wo 			= -sr.ray.d;
 	Color	 	L 			= ambient_brdf->rho(sr, wo) * sr.w.ambient_ptr->L(sr);
-	//int 		num_lights	= sr.w.lights.size();
 	
-	for(auto light : sr.w.lights){
-	//for (int j = 0; j < num_lights; j++) {
-		//glm::vec3 wi = sr.w.lights[j]->get_direction(sr);    
+	for(auto light : sr.w.lights){   
 		glm::vec3 wi = light->get_direction(sr);
 		float ndotwi = glm::dot(sr.normal,wi);
 		if (ndotwi > 0.0) {
-			//L += diffuse_brdf->f(sr, wo, wi) * sr.w.lights[j]->L(sr) * ndotwi;
 			L += diffuse_brdf->f(sr, wo, wi) * light->L(sr) * ndotwi;
-			/*
-			std::cout<<
-			L.r<< ", "<<
-			L.g<<", " <<
-			L.b<<" = L \n";
-			*/			
 		}
 	}
 	

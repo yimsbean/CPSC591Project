@@ -1,5 +1,5 @@
 #include "Program.h"
-
+#include <mutex>
 namespace Engine{
 //#Program =========
 //Constructor
@@ -17,7 +17,7 @@ Program::start() {
 	while(!glfwWindowShouldClose(window)) {
 		//world->draw();
 		glfwWaitEventsTimeout(1);
-		glfwSwapBuffers(window);
+		//glfwSwapBuffers(window);
 		//glfwPollEvents();
 	}
 }
@@ -51,8 +51,8 @@ Program::setupWindow() {
 	glfwSetWindowUserPointer(window, this);
 	//Set the custom function that tracks key presses
 	glfwSetKeyCallback(window, &KeyCallback);
-	glfwSetMouseButtonCallback(window, &MouseCallback);
-	glfwSetCursorPosCallback(window, &MousePositionCallback);
+	//glfwSetMouseButtonCallback(window, &MouseCallback);
+	//glfwSetCursorPosCallback(window, &MousePositionCallback);
 	glfwSetScrollCallback(window, &MouseScrollCallback);
 
 	//Bring the new window to the foreground (not strictly necessary but convenient)
@@ -70,6 +70,8 @@ Program::setupWindow() {
 	//-----------------------------------
 	// create world
 	world = new World(width,height);
+	//initial swap buffering
+	glfwSwapBuffers(window);
 }
 //msg - gl version
 void 
@@ -154,16 +156,18 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
 			case GLFW_KEY_R:
 				camera.reset();break;
-			default:	return;
+			default: return;
 		}
 		if(DEBUG_CAMERA){
-		std::cout<<
-			"CAMERA EYE = [" <<camera.get_eye().x <<", " <<camera.get_eye().y <<", " <<camera.get_eye().z <<"] " <<
-			" LOOK = [" <<camera.get_lookat().x <<", " <<camera.get_lookat().y <<", " <<camera.get_lookat().z <<"] " <<
-			" UP = [" <<camera.get_up().x <<", " <<camera.get_up().y <<", " <<camera.get_up().z <<"] " <<
-			" FOV = [" <<camera.get_fov() <<"]\n";
+			std::cout<<
+				"CAMERA EYE = [" <<camera.get_eye().x <<", " <<camera.get_eye().y <<", " <<camera.get_eye().z <<"] " <<
+				" LOOK = [" <<camera.get_lookat().x <<", " <<camera.get_lookat().y <<", " <<camera.get_lookat().z <<"] " <<
+				" UP = [" <<camera.get_up().x <<", " <<camera.get_up().y <<", " <<camera.get_up().z <<"] " <<
+				" FOV = [" <<camera.get_fov() <<"]\n";
 		}
 		program->getWorld()->update();
+		//swap buffer only when updated
+		glfwSwapBuffers(window);
 	}else if(action == GLFW_RELEASE){
 		if(key == GLFW_KEY_LEFT_SHIFT){
 			Program * program = (Program*)glfwGetWindowUserPointer(window);

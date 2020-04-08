@@ -39,6 +39,7 @@ class Reflective: public Phong {
 		
 		virtual Color										
 		shade(ShadeRec& s);
+
 		
 	private:
 	

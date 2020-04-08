@@ -4,7 +4,7 @@
 #include "BRDF.h"
 
 namespace Engine{
-
+//REQUIRED FOR all "type-not-specified(default)" MATERIALS
 class Lambertian: public BRDF {
 	public:
 	//@variables

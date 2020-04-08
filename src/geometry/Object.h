@@ -47,6 +47,9 @@ class Object {
 		
 		Color
 		get_color();
+
+		virtual glm::vec3
+		get_center();
     protected:
     //@variables
         // mutable allows the const functions Compound::hit, Instance::hit, and RegularGrid::hit to assign to material_ptr

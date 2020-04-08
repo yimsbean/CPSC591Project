@@ -3,19 +3,9 @@
 //#include "RayCast.h"
 #include "Whitted.h"
 
-#include "Triangle.h"
-#include "Sphere.h"
-#include "Plane.h"
-#include "Composite.h"
+#include "Image.h"
+#include "Bubble2.h"
 
-#include "Matte.h"
-#include "Phong.h"
-#include "Reflective.h"
-#include "Bubble.h"	//CORE MATERIAL!
-
-
-#include <fstream>
-#include <sstream>
 //for drawing
 #include <mutex>
 
@@ -32,15 +22,26 @@ World::~World()
 void 
 World::initialize(){
 	//SPECIFY TRACER
-	tracer_ptr = new Whitted(this,10);
+	background_tracer_ptr = new RayCast(this);
+	bubble_tracer_ptr = new Whitted(this,10);
 	loadScene(1);
 }
 void 
 World::delete_world(){
 	if(ambient_ptr != nullptr)
 		delete ambient_ptr;
-	if(tracer_ptr != nullptr)
-		delete tracer_ptr;
+	if(background_tracer_ptr != nullptr)
+		delete background_tracer_ptr;
+	if(bubble_tracer_ptr != nullptr)
+		delete bubble_tracer_ptr;
+}
+
+void World::reset(){
+	image.Destroy();
+	image.Initialize();
+	camera.reset();
+	lights.clear();
+	objects.clear();
 }
 
 void 
@@ -52,57 +53,237 @@ World::update(){
 void 
 World::draw(){
 	drawmutex.lock();
-	auto t1 = std::chrono::high_resolution_clock::now();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//1. RENDER BACKGROUND
+	render_background();
+	//image.Render();
+	//2. repeat for each soap bubble
+	render_bubble();
+
+	//old method
+	//render_bubble_fresnel();
+	drawmutex.unlock();
+}
+//--------------------------------------------------
+void
+World::render_background(){
+	auto t1 = std::chrono::high_resolution_clock::now();
 
 	Color		L; 								
 	Ray			ray;
 	int 		depth = 0;
-
 	ray.o = camera.get_eye();
 	for (int r = 0; r < HEIGHT; r++){			// up
 		for (int c = 0; c < WIDTH; c++) {		// across 					
 			L = black; 
 			ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
 			//TIME CONSUMING(most time consuming(>95%))
-			L += tracer_ptr->trace_ray(ray, depth);
+			L += background_tracer_ptr->trace_ray(ray,depth);
 
 			if(DEBUG_RENDER_COLOR){
-				if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f)
+				if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f || L.r < 0.f || L.g < 0.f || L.b < 0.f)
 					std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
 			}
 			image.SetPixel(c, r, glm::vec3(L.r,L.g,L.b));
 		} 
 	}
+	if(DEBUG_TIME){
+		auto t2 = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+		std::cout<<"\nBACKG, Background Rendering Finished : "<< duration <<"ms\n";
+	}
+}
+
+void
+World::render_bubble(){
+	auto t1 = std::chrono::high_resolution_clock::now();
+	//REPEAT THIS STEP FOR ALL BUBBLES in descending order from viewpoint
+	//for now test with 1 bubble
+	for(auto& bubble: bubbles){
+		//centre of the bubble
+		
+			//Convert cube map into single map
+			//http://paulbourke.net/miscellaneous/cubemaps/
+		
+			//fill in big image
+		Color L;
+		Ray ray;
+		ray.o = bubble->get_center();	//set ray centre as object centre
+
+		//2-a. CREATE CUBE MAP TEXTURE
+			//LEFT, FRONT, UP, DOWN, RIGHT, BACK
+		int t_a = 80;
+		int wid=4*t_a, hei=3*t_a;
+		Image* bubbleTexture = new Image(wid,hei);
+		float xdeg,ydeg,zdeg, PHI,THETA;
+		
+		for (int r = 0; r < hei; r++){
+			for (int c = 0; c < wid; c++) {
+				L = black;
+				float x=0,y=0;
+				//-1 <= x,y <= 1
+				x = 2.f*(c-0.5f*(wid-1))/(wid-1);
+				y = 2.f*(r-0.5f*(hei-1))/(hei-1);
+				// -PI <= THETA <= PI , -PI/2 <= PHI <= PI/2
+				THETA = x * M_PI;
+				PHI = y * M_PI/2.f;
+				xdeg = glm::cos(PHI) * glm::cos(THETA);
+				ydeg = glm::sin(PHI);
+				zdeg = glm::cos(PHI) * glm::sin(THETA);
+				//xdeg = glm::sin(THETA) * glm::cos(PHI);
+				//ydeg = glm::sin(THETA) * glm::sin(PHI);
+				//zdeg = glm::cos(THETA);
+				
+				glm::vec3 w(xdeg,ydeg,zdeg);
+				ray.d = w;
+				L+=background_tracer_ptr->trace_ray(ray);
+				bubbleTexture->set_color(c,r,L);
+				//image.SetPixel(c, r, glm::vec3(L.r,L.g,L.b));
+			}
+		}
+		
+		ImageTexture* texture_ptr = new ImageTexture;
+		texture_ptr->set_image(bubbleTexture);
+		((Bubble2*)(bubble->get_material()))->set_cd(texture_ptr);
+		
+		//2-b. Map the reflectivity texture onto the soap bubble.
+		//Render the bubble by multiplicative blending with the frame buffer
+		//multiplicative => DST = DST * SRC
+		/*
+		for (int r = 0; r < HEIGHT; r++){			// up
+			for (int c = 0; c < WIDTH; c++) {		// across
+				L = black; 
+				ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
+				//TRACE BUBBLE
+				L += background_tracer_ptr->trace_object(ray, bubble);
+				//(1 − R(λ, θ))×Lit(λ)
+				image.MultiplicativeBlendPixel(c, r, 1.f-glm::vec3(L.r,L.g,L.b));
+			}
+		}
+		*/
+
+		//2-c. Map the cube map textures and the texture of reflectivity to the soap bubble.
+		//by using multiplicative multitexturing function.
+		//Render the bubble by additive blending with the bubble rendered at step (b)
+		//ADDITIVE => DST = DST + SRC
+		
+		ray.o = camera.get_eye();
+		for (int r = 0; r < HEIGHT; r++){			// up
+			for (int c = 0; c < WIDTH; c++) {		// across 					
+				L = black; 
+				ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
+				//TIME CONSUMING(most time consuming(>95%))
+				L += background_tracer_ptr->trace_object(ray,bubble);
+				if(DEBUG_RENDER_COLOR){
+					if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f || L.r < 0.f || L.g < 0.f || L.b < 0.f)
+						std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
+				}
+				image.AdditiveBlendPixel(c, r, glm::vec3(L.r,L.g,L.b));
+			} 
+		}
+		
+		//2-d. Map the light source texture to the soap bubble. 
+		//Render the bubble by additive blending with the bubble rendered at step (c).
+		//ADDITIVE => DST = DST + SRC
+		//-------------- ORIGINAL WHITTED
+		
+		ray.o = camera.get_eye();
+		for (int r = 0; r < HEIGHT; r++){			// up
+			for (int c = 0; c < WIDTH; c++) {		// across 					
+				L = black; 
+				ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
+				//TIME CONSUMING(most time consuming(>95%))
+				L += background_tracer_ptr->trace_light(ray,bubble);
+				if(DEBUG_RENDER_COLOR){
+					if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f || L.r < 0.f || L.g < 0.f || L.b < 0.f)
+						std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
+				}
+				image.AdditiveBlendPixel(c, r, glm::vec3(L.r,L.g,L.b));
+			} 
+		}
+		
+		//-----------
+		
+		if(DEBUG_TEXTURE){
+			t_a = 60;
+			wid=4*t_a, hei=3*t_a;
+			ray.o = bubble->get_center();
+			for (int r = 0; r < hei; r++){
+				for (int c = 0; c < wid; c++) {
+					L = black;
+					float x=0,y=0;
+						
+					//-1 <= x,y <= 1
+					x = 2.f*(c-0.5*(wid-1))/(wid-1);
+					y = 2.f*(r-0.5*(hei-1))/(hei-1);
+					// 0 <= THETA <= 2PI , -PI/2 <= PHI <= PI/2
+					THETA = x * M_PI;
+					PHI = y * M_PI/2.f;
+					xdeg = glm::cos(PHI) * glm::cos(THETA);
+					ydeg = glm::sin(PHI);
+					zdeg = glm::cos(PHI) * glm::sin(THETA);
+					glm::vec3 w(xdeg,ydeg,zdeg);
+					ray.d = w;
+					L+=background_tracer_ptr->trace_ray(ray);
+					//bubbleTexture->set_color(c,r,L);
+					image.SetPixel(c, r, glm::vec3(L.r,L.g,L.b));
+				}
+			}
+		}
+	}
+	//"render" to screen at last
 	image.Render();
 	if(DEBUG_TIME){
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-		std::cout<<"Drawing Finished : "<< duration <<"ms\n";
+		std::cout<<"Bubble Rendering Finished : "<< duration <<"ms\n";
 	}
-	drawmutex.unlock();
 }
-void World::reset(){
-	image.Destroy();
-	image.Initialize();
-	camera.reset();
-	lights.clear();
-	objects.clear();
+//OLD METHOD (WHITTED< FRESNEL)
+void
+World::render_bubble_fresnel(){
+	auto t1 = std::chrono::high_resolution_clock::now();
+	Color L;
+	Ray ray;
+	int depth = 0;
+	depth = 0;
+	ray.o = camera.get_eye();
+	for (int r = 0; r < HEIGHT; r++){			// up
+		for (int c = 0; c < WIDTH; c++) {		// across 					
+			L = black; 
+			ray.d = camera.get_direction(glm::vec2((c-0.5*WIDTH),(r-0.5*HEIGHT)));
+			//TIME CONSUMING(most time consuming(>95%))
+			L += bubble_tracer_ptr->trace_ray(ray,depth);
+			
+			if(DEBUG_RENDER_COLOR){
+				if(L.r > 1.0f || L.g > 1.0f || L.b > 1.0f || L.r < 0.f || L.g < 0.f || L.b < 0.f)
+					std::cout<<"("<<r<<", "<<c<<"), ["<<L.r<<", "<<L.g<<", "<<L.b <<"]\n";
+			}
+			image.SetPixel(c, r, glm::vec3(L.r,L.g,L.b));
+		} 
+	}
+	
+	//----------
+	image.Render();
+	if(DEBUG_TIME){
+		auto t2 = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+		std::cout<<"Fresnel Bubble Rendering Finished : "<< duration <<"ms\n";
+	}
 }
-
+//--------------------------------------------------
+//CALLBACK FUNCTION (Raycast)
 //for each object hit/nohit
 ShadeRec									
-World::hit_objects(const Ray& ray) {
+World::hit_background_objects(const Ray& ray) {
 	ShadeRec	sr(*this); 
 	double		t;
 	glm::vec3	normal;
 	glm::vec3 	local_hit_point;
 	float		tmin 			= std::numeric_limits<float>::max();
-	//int 		num_objects 	= objects.size();
-	for (auto obj : objects){
-	//for (int j = 0; j < num_objects; j++)
-		//if (objects[j]->hit(ray, t, sr) && (t < tmin)) {
+
+	for (auto& obj : objects){
+		//not so efficient though
 		if (obj->hit(ray, t, sr) && (t < tmin)) {
 			sr.hit_an_object	= true;
 			tmin 				= t;
@@ -120,158 +301,98 @@ World::hit_objects(const Ray& ray) {
 	}
 	return(sr);   
 }
-void
-World::readFromSceneFile(const char* fileName){
-	//0. AMBIENT LIGHT
-    Ambient* amb_ptr = new Ambient;
-	amb_ptr->scale_radiance(0.5);
-	ambient_ptr = amb_ptr;
-	//1. BACKGROUND COLOUR
-	background_color = Color(0.1f,0.1f,0.1f);
-
-	//2. LOAD FROM FILE(json)
-    std::ifstream i(fileName);
-    if(i.fail()){ std::cerr<<"ERROR IN READING JSON FILE\n";exit(1);}
-    nlohmann::json j;
-    i >> j;
-	if(j.empty()) return;
-	std::string temp;
-    for (auto& element : j.items()) {
-		//LOAD CAMERA
-		if(element.key() == "camera"){
-			//__comment, eye, lookat, up, fov
-			auto elm = element.value();
-			camera.set_eye(elm["eye"][0].get<float>(),elm["eye"][1].get<float>(),elm["eye"][2].get<float>());
-			camera.set_lookat(elm["lookat"][0].get<float>(),elm["lookat"][1].get<float>(),elm["lookat"][2].get<float>());
-			camera.set_up(elm["up"][0].get<float>(),elm["up"][1].get<float>(),elm["up"][2].get<float>());
-			camera.set_fov(elm["fov"].get<float>());
+//CALLBACK FUNCTION (Whitted, all objects)
+ShadeRec									
+World::hit_objects(const Ray& ray) {
+	ShadeRec	sr(*this); 
+	double		t;
+	glm::vec3	normal;
+	glm::vec3 	local_hit_point;
+	float		tmin 			= std::numeric_limits<float>::max();
+	std::vector<Object*> allobjs = bubbles;
+	allobjs.insert( allobjs.end(), objects.begin(), objects.end() );
+	for (auto obj : allobjs){
+		if (obj->hit(ray, t, sr) && (t < tmin)) {
+			sr.hit_an_object	= true;
+			tmin 				= t;
+			sr.material_ptr     = obj->get_material();
+			sr.hit_point 		= ray.o + (float)t * ray.d;
+			normal 				= sr.normal;
+			local_hit_point	 	= sr.local_hit_point;
 		}
-		//LOAD LIGHTS
-		else if(element.key() == "lights"){
-			//__comment, type, geometry, strength
-			for(auto& elm : element.value()){
-				if(elm["type"] == "point"){
-					auto pt = elm["geometry"];
-					PointLight* light_ptr1 = new PointLight;
-					light_ptr1->set_location(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>())
-					);
-					light_ptr1->scale_radiance(elm["strength"].get<float>());
-					lights.push_back(light_ptr1);
-				}
+	}
+  
+	if(sr.hit_an_object) {
+		sr.t = tmin;
+		sr.normal = normal;
+		sr.local_hit_point = local_hit_point;
+	}
+	return(sr);   
+}
+//--------------------------------------------------
+//CALLBACK FUNCTION (Raycast, single object, without light)
+ShadeRec
+World::hit_object(const Ray& ray,const Object* obj){
+	ShadeRec	sr(*this); 
+	double		t;
+	glm::vec3	normal;
+	glm::vec3 	local_hit_point;
+	float		tmin 			= std::numeric_limits<float>::max();
+
+	if (obj->hit(ray, t, sr) && (t < tmin)) {
+		sr.hit_an_object	= true;
+		tmin 				= t;
+		sr.material_ptr     = obj->get_material();
+		sr.hit_point 		= ray.o + (float)t * ray.d;
+		normal 				= sr.normal;
+		local_hit_point	 	= sr.local_hit_point;
+		//anything closer than bubble?
+		
+		for (auto bobj : objects){
+			if(bobj->hit(ray, t, sr) && (t < tmin)){
+				sr.hit_an_object = false;
+				return(sr);
 			}
 		}
-		//LOAD OBJECTS
-		else if(element.key() == "objects"){
-			//__comment, type, geometry, color, material
-			for(auto& elm : element.value()){
-				if(elm["type"] == "triangle"){
-					auto pt = elm["geometry"];
-					Triangle* obj= new Triangle(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
-						glm::vec3(pt[3].get<float>(),pt[4].get<float>(),pt[5].get<float>()),
-						glm::vec3(pt[6].get<float>(),pt[7].get<float>(),pt[8].get<float>())
-					);
-					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
-					//obj->set_color(color);
-					Material* mat;
-					if(elm["material"] == "reflective"){
-						Reflective* matte = new Reflective();
-						matte->set_ka(0.25); 
-						matte->set_kd(0.5);
-						matte->set_cd(color);
-						//matte->set_ks(0.15);
-						//matte->set_exp(100.0);
-						matte->set_kr(0.75);
-						matte->set_cr(color);
-						mat = matte;
-					}
-					else{
-						Matte* matte = new Matte();
-						matte->set_cd(color);
-						matte->set_kd(0.5f);
-						mat = matte;
-					}
-					obj->set_material(mat);
-					objects.push_back(obj);
-				}
-				else if(elm["type"] == "sphere"){
-					auto pt = elm["geometry"];
-					Sphere* obj= new Sphere(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
-						pt[3].get<float>()
-					);
-					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
-					//obj->set_color(color);
-					Material* mat;
-					if(elm["material"] == "bubble"){
-						Bubble* matte = new Bubble();
-						/*
-						matte->set_ka(0.25); 
-						matte->set_kd(0.5);
-						matte->set_cd(color);
-						matte->set_kr(0.75);
-						matte->set_cr(color);
-						*/
-						matte->set_eta_in(1.5);
-						matte->set_eta_out(1.0);
-						matte->set_cf_in(white);
-						matte->set_cf_out(Color((int)0xEEEEEEEE));
-						mat = matte;
-					}
-					else if(elm["material"] == "reflective"){
-						Reflective* matte = new Reflective();
-						matte->set_ka(0.25); 
-						matte->set_kd(0.5);
-						matte->set_cd(color);
-						//matte->set_ks(0.15);
-						//matte->set_exp(100.0);
-						matte->set_kr(0.75);
-						matte->set_cr(color);
-						mat = matte;
-					}
-					else{
-						Matte* matte = new Matte();
-						matte->set_cd(color);
-						matte->set_kd(0.5f);
-						mat = matte;
-					}
-					obj->set_material(mat);
-					objects.push_back(obj);
+		
+	}
+	if(sr.hit_an_object) {
+		sr.t = tmin;
+		sr.normal = normal;
+		sr.local_hit_point = local_hit_point;
+	}
+	return(sr); 		
+}
+//--------------------------------------------------
+//CALLBACK FUNCTION (Raycast, single object, light)
+ShadeRec
+World::hit_light(const Ray& ray,const Object* obj){
+	ShadeRec	sr(*this); 
+	double		t;
+	glm::vec3	normal;
+	glm::vec3 	local_hit_point;
+	float		tmin 			= std::numeric_limits<float>::max();
 
-				}
-				else if(elm["type"] == "plane"){
-					auto pt = elm["geometry"];
-					Plane* obj= new Plane(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
-						glm::vec3(pt[3].get<float>(),pt[4].get<float>(),pt[5].get<float>())
-					);
-					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
-					//obj->set_color(color);
-					Material* mat;
-					if(elm["material"] == "reflective"){
-						Reflective* matte = new Reflective();
-						matte->set_ka(0.25); 
-						matte->set_kd(0.5);
-						matte->set_cd(color);
-						//matte->set_ks(0.15);
-						//matte->set_exp(100.0);
-						matte->set_kr(0.75);
-						matte->set_cr(color);
-						mat = matte;
-					}
-					else{
-						Matte* matte = new Matte();
-						matte->set_cd(color);
-						matte->set_kd(0.5f);
-						mat = matte;
-					}
-					obj->set_material(mat);
-					objects.push_back(obj);
-				}
-			}	
+	if (obj->hit(ray, t, sr) && (t < tmin)) {
+		sr.hit_an_object	= true;
+		tmin 				= t;
+		sr.material_ptr     = obj->get_material();
+		sr.hit_point 		= ray.o + (float)t * ray.d;
+		normal 				= sr.normal;
+		local_hit_point	 	= sr.local_hit_point;
+		//anything closer than bubble?
+		for (auto bobj : objects){
+			if(bobj->hit(ray, t, sr) && (t < tmin)){
+				sr.hit_an_object = false;
+				return(sr);
+			}
 		}
-    }
-    std::cout<<"Scene objects loaded\n";
+	}
+	if(sr.hit_an_object) {
+		sr.t = tmin;
+		sr.normal = normal;
+		sr.local_hit_point = local_hit_point;
+	}
+	return(sr); 		
 }
 }

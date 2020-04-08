@@ -9,6 +9,10 @@
 
 #include "Constants.h"
 
+//#include "Tracer.h"
+#include "RayCast.h"
+#include "Whitted.h"
+
 //basic elements
 #include "Color.h"
 #include "Light.h"
@@ -21,11 +25,9 @@
 #include "Camera.h"
 #include "Ray.h"
 
-#include "Tracer.h"
-
+#include "Image.h"
 //for functions
 #include "Imagebuffer.h"
-#include "json.hpp"
 
 
 namespace Engine{
@@ -39,11 +41,16 @@ public:
     ImageBuffer         image;
     Camera              camera;
     Light*   		    ambient_ptr = nullptr;
-    Tracer*				tracer_ptr = nullptr;
+    RayCast*			background_tracer_ptr = nullptr;
+    Whitted*			bubble_tracer_ptr = nullptr;
 
     std::vector<Light*> lights;
     std::vector<Object*> objects;
 
+    std::vector<Object*> bubbles;
+    //int texture_a = 120;
+    //std::vector<Image*> bubbleTextures;
+    
     World(int w, int h);
     virtual ~World();
 
@@ -58,6 +65,16 @@ public:
     draw();
 
     void
+    render_background();
+
+    void
+    render_bubble();
+
+    //old method(fresnel + whitted)
+    void
+    render_bubble_fresnel();
+
+    void
     initialize();
     void 
     delete_world();
@@ -66,9 +83,19 @@ public:
     loadScene(int sceneNo);
 
     ShadeRec
+	hit_background_objects(const Ray& ray);
+
+    ShadeRec
 	hit_objects(const Ray& ray);
+
+    ShadeRec
+	hit_object(const Ray& ray,const Object* obj);
+
+    ShadeRec
+	hit_light(const Ray& ray,const Object* obj);
     
 private:
+    
     void
     scene1();
 

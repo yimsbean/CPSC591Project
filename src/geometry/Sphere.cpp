@@ -85,7 +85,10 @@ Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 	return (false);
 }
 
-
+glm::vec3
+Sphere::get_center(){
+	return center;
+}
 
 //private------
 //@basics(constructor, desturctor, ...)

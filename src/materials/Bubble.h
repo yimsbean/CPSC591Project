@@ -1,14 +1,11 @@
 #pragma once
 
 #include "Phong.h"
-#include "PerfectTransmitter.h"
-#include "PerfectSpecular.h"
 #include "FresnelTransmitter.h"
 #include "FresnelReflector.h"
 
 namespace Engine{
-//----------------------------------------------------------------------------- class Bubble
-
+// BUBBLE MATERIAL
 class Bubble: public Phong {	
 	public:
 			
@@ -24,25 +21,10 @@ class Bubble: public Phong {
 
 		~Bubble(void);	
 
-		/*
-		void
-		set_kt(const float k);
 
 		void
-		set_ior(const float ior);
-				
-		void
-		set_kr(const float k);
-				
-		void													
-		set_cr(const Color& c);
-		
-		void
-		set_cr(const float r, const float g, const float b);
-		
-		void
-		set_cr(const float c);
-		*/
+		set_cf(const Color cf);
+
 		void
 		set_cf_in(const Color ci);
 
@@ -50,15 +32,14 @@ class Bubble: public Phong {
 		set_cf_out(const Color co);
 
 		void
-		set_eta_in(const float ei);
-
-		void
-		set_eta_out(const float eo);
+		set_eta(const float e);
 
 		virtual Color										
 		shade(ShadeRec& s);
 
+
 	private:
+		Color 			cf;			// interior filter color 
 		Color 			cf_in;			// interior filter color 
 		Color 			cf_out;			// exterior filter color
 
@@ -68,6 +49,10 @@ class Bubble: public Phong {
 		//PerfectSpecular*		reflective_brdf;
 };
 inline void
+Bubble::set_cf(Color c) {
+	cf=c;
+}
+inline void
 Bubble::set_cf_in(Color ci) {
 	cf_in=ci;
 }
@@ -76,14 +61,9 @@ Bubble::set_cf_out(Color co) {
 	cf_out=co;
 }
 inline void
-Bubble::set_eta_in(const float ei) {
-	fresnel_brdf->set_eta_in(ei);
-	fresnel_btdf->set_eta_in(ei);
-}
-inline void
-Bubble::set_eta_out(const float eo) {
-	fresnel_brdf->set_eta_in(eo);
-	fresnel_btdf->set_eta_in(eo);
+Bubble::set_eta(const float e) {
+	fresnel_brdf->set_eta(e);
+	fresnel_btdf->set_eta(e);
 }
 /*
 // ---------------------------------------------------------------- set_kr

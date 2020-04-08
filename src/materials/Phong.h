@@ -38,6 +38,7 @@ class Phong: public Material {
 				
 		Color
 		shade(ShadeRec& sr);
+
 		
 	private:
 		

@@ -20,7 +20,7 @@ class Material {
 				
 		virtual Color
 		shade(ShadeRec& sr);
-
+		
 	protected:
 		Material& 								
 		operator= (const Material& rhs);						

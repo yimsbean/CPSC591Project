@@ -29,7 +29,9 @@ class Triangle: public Object {
 
 		//virtual bool 
 		//shadow_hit(const Ray& ray, double& tmin) const;
-
+		
+		virtual glm::vec3
+		get_center();
 	private:
 	//@variables
 		glm::vec3   p1, p2, p3;

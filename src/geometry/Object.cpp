@@ -74,5 +74,8 @@ void
 Object::set_color(const float r, const float g, const float b){
 	color = Color(r,g,b);
 }
-
+glm::vec3
+Object::get_center(){
+	return glm::vec3(0.f,0.f,0.f);
+}
 }

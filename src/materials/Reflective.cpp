@@ -77,7 +77,7 @@ Reflective::shade(ShadeRec& sr) {
 	Ray reflected_ray(sr.hit_point, wi); 
 	//reflected_ray.depth = sr.depth + 1;
 	
-	L += fr * sr.w.tracer_ptr->trace_ray(reflected_ray, sr.depth + 1) * glm::dot(sr.normal,wi);
+	L += fr * sr.w.background_tracer_ptr->trace_ray(reflected_ray, sr.depth + 1) * glm::dot(sr.normal,wi);
 					
 	return (L);
 }

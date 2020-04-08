@@ -25,7 +25,10 @@ class Light {
 						
 		virtual glm::vec3								
 		get_direction(ShadeRec& sr) = 0;				
-																
+
+		virtual float
+		get_radiance()=0;
+								
 		virtual Color														
 		L(ShadeRec& sr);								
 };

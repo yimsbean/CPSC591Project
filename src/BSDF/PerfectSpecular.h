@@ -12,6 +12,7 @@
 #include "Constants.h"
 
 namespace Engine{
+//REQUIRED FOR "REFLECTIVE" MATERIALS
 class PerfectSpecular: public BRDF 
 {
 	public:

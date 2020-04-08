@@ -116,12 +116,12 @@ Color
 ImageTexture::get_color(const ShadeRec& sr) const {	
 	int row;
 	int column;
-		
 	if (mapping_ptr)
 		mapping_ptr->get_texel_coordinates(sr.local_hit_point, hres, vres, row, column);
 	else {
-		row 	= (int)(sr.v * (vres - 1));  	
-		column 	= (int)(sr.u * (hres - 1));	
+		row 	= (int)(sr.u * (hres - 1));  	
+		column 	= (int)(sr.v * (vres - 1));	
+		auto L = image_ptr->get_color(row, column);
 	}
 	
 	return (image_ptr->get_color(row, column));

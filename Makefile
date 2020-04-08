@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS= -std=c++17 -O3 -g 
+CXXFLAGS= -std=c++17 -O3 -g
 LINKFLAGS= -lglfw -lGLU -lGL -ldl -lpthread
 
 #debug = true

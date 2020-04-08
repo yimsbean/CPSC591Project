@@ -13,6 +13,7 @@
 #include "Constants.h"
 
 namespace Engine{
+//used in bubble(material)
 class FresnelReflector: public BRDF 
 {
 	public:
@@ -21,16 +22,16 @@ class FresnelReflector: public BRDF
 		
         FresnelReflector(const FresnelReflector& fr);
 
-		~FresnelReflector(void);
+		virtual ~FresnelReflector(void);
 		
 		virtual FresnelReflector*
 		clone(void) const;
+
+		FresnelReflector&							
+		operator= (const FresnelReflector& rhs);
 		
 		void
-		set_eta_in(const float ei);
-		
-		void
-		set_eta_out(const float eo);
+		set_eta(const float e);
 		
 		virtual Color
 		f(const ShadeRec& sr, const glm::vec3& wo, const glm::vec3& wi) const;
@@ -46,20 +47,12 @@ class FresnelReflector: public BRDF
 				
 	private:
 	
-		float   eta_in;
-        float   eta_out;
+		float   eta;
 };
 
 
 inline void
-FresnelReflector::set_eta_in(const float ei) {
-	eta_in = ei;
-}
-
-// -------------------------------------------------------------- set_ior
-
-inline void
-FresnelReflector::set_eta_out(const float eo) {
-	eta_out = eo;
+FresnelReflector::set_eta(const float e) {
+	eta = e;
 }
 }

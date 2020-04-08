@@ -120,19 +120,62 @@ void ImageBuffer::Destroy()
     }
 }
 
+
 // --------------------------------------------------------------------------
 
 void ImageBuffer::SetPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
     m_imageData[index] = colour;
-
+    SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;
     m_modifiedLower = std::min(m_modifiedLower, y);
     m_modifiedUpper = std::max(m_modifiedUpper, y+1);
 }
 
+// --------------------------------------------------------------------------
+
+void ImageBuffer::AdditiveBlendPixel(int x, int y, vec3 colour)
+{
+    int index = y * m_width + x;
+    //preservation of energy!
+    float t = 0.8f;
+    m_imageData[index] = t*m_imageData[index] + (1-t)*colour;
+    SetPixelColourInRange(index);
+    // mark that something was changed
+    m_modified = true;
+    m_modifiedLower = std::min(m_modifiedLower, y);
+    m_modifiedUpper = std::max(m_modifiedUpper, y+1);
+}
+
+void ImageBuffer::MultiplicativeBlendPixel(int x, int y, vec3 colour)
+{
+    int index = y * m_width + x;
+    //preservation of energy?
+    m_imageData[index] = m_imageData[index] * (1.f-colour);
+    SetPixelColourInRange(index);
+    // mark that something was changed
+    m_modified = true;
+    m_modifiedLower = std::min(m_modifiedLower, y);
+    m_modifiedUpper = std::max(m_modifiedUpper, y+1);
+}
+
+void ImageBuffer::SetPixelColourInRange(int index){
+    if(m_imageData[index].x > 1.f)
+        m_imageData[index].x = 1.f;
+    if(m_imageData[index].y > 1.f)
+        m_imageData[index].y = 1.f;
+    if(m_imageData[index].z > 1.f)
+        m_imageData[index].z = 1.f;
+
+    if(m_imageData[index].x < 0.f)
+        m_imageData[index].x = 0.f;
+    if(m_imageData[index].y < 0.f)
+        m_imageData[index].y = 0.f;
+    if(m_imageData[index].z < 0.f)
+        m_imageData[index].z = 0.f;
+}
 // --------------------------------------------------------------------------
 
 void ImageBuffer::Render()

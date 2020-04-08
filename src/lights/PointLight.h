@@ -31,6 +31,9 @@ class PointLight: public Light {
 		virtual glm::vec3
 		get_direction(ShadeRec& sr);
 
+		virtual float
+		get_radiance();
+		
 		virtual Color
 		L(ShadeRec& sr);
 
@@ -40,6 +43,11 @@ class PointLight: public Light {
 		Color 	    color;
 		glm::vec3 	location;
 };
+inline float 
+PointLight::get_radiance(){
+	return ls;
+}
+		
 inline void
 PointLight::scale_radiance(const float b) { 
 	ls = b;

@@ -119,16 +119,6 @@ Camera::get_fov() {
 	return fov;
 }
 
-inline glm::vec3
-Camera::get_direction(glm::vec2 in) {
-	float distance = glm::distance(lookat,eye);
-	glm::vec3 w = glm::normalize(eye - lookat);
-	glm::vec3 u = glm::cross(glm::normalize(up),w);
-	glm::vec3 v = glm::cross(w,u);
-
-	return glm::normalize(in.x * u + in.y * v - 500.f * w);
-}
-
 // ----------------------------------------------------------------- set_eye
 inline void
 Camera::set_eye(const glm::vec3& p) {

@@ -68,4 +68,11 @@ Composite::delete_objects(){
         objects.end()
     );
 }
+glm::vec3
+Composite::get_center(){
+    glm::vec3 center(0.f);
+	for(auto& obj : objects)
+        center+=obj->get_center();
+    return center/(float)objects.size();
+}
 }

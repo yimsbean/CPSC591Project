@@ -21,15 +21,14 @@ class Image {
 	
 		Image(void);								
 
+		Image(const int hres, const int vres);
+
 		Image(const Image& image);					
 
 		Image& 										
 		operator= (const Image& image);		
 
 		~Image(void) ;								
-		
-		void										
-		read_ppm_file(const char* file_name);
 		
 		int
 		get_hres(void);	
@@ -40,10 +39,12 @@ class Image {
 		Color									
 		get_color(const int row, const int col) const;		
 		
+		void
+		set_color(const int row, const int col,const Color c);
 	private:
 		int 					hres;			// horizontal resolution of image
 		int						vres;			// vertical resolution of image
-		std::vector<Color> 	pixels;
+		std::vector<Color> 		pixels;
 };
 
 

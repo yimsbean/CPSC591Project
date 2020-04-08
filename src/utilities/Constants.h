@@ -13,9 +13,10 @@
 //just in case for including cmath, for M_PI value
 #define _USE_MATH_DEF
 
-#define EPSILON 0.0001
+#define EPSILON 0.000001
 
 #include <iostream>
+#define DEBUG_TEXTURE false
 #define DEBUG_CAMERA false
 #define DEBUG_RENDER_COLOR false
 #define DEBUG_TIME true

@@ -33,7 +33,10 @@ class Ambient: public Light {
 		
 		virtual glm::vec3								
 		get_direction(ShadeRec& s); 
-		
+
+		virtual float 
+		get_radiance();
+
 		virtual Color
 		L(ShadeRec& s);
 	
@@ -43,7 +46,10 @@ class Ambient: public Light {
 		Color		color;
 };
 
-
+inline float 
+Ambient::get_radiance(){
+	return ls;
+}
 
 
 // ------------------------------------------------------------------------------- scale_radiance

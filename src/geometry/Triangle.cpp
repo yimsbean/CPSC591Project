@@ -143,5 +143,8 @@ Triangle::calculate_normal() {
 				glm::cross(p2 - p1,p3 - p1)
 			);
 }
-
+glm::vec3
+Triangle::get_center(){
+	return (p1+p2+p3)/3.f;
+}
 }

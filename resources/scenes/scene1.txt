@@ -11,13 +11,13 @@
       "__comment" : "# point light1",
       "type": "point",
       "geometry" : [9,9,-12],
-      "strength" : 10.0
+      "strength" : 7.0
     }
   },
   "objects" : {
     "sphereB1": {
       "__comment" : "# main bubble",
-      "type": "sphere",
+      "type": "bubble2",
       "geometry": [3,0,-12, 4],
       "color": "0xFFFFFFFF",
       "material" : "bubble",
@@ -28,6 +28,22 @@
       "type": "sphere",
       "geometry": [-2,1,-18, 2],
       "color": "0xFFCC55CC",
+      "material" : "none",
+      "texture" : "none"
+    },
+    "sphere2": {
+      "__comment" : "# sphere, outer, right, cyan",
+      "type": "sphere",
+      "geometry": [5,1,13, 2],
+      "color": "0xFF55CCCC",
+      "material" : "none",
+      "texture" : "none"
+    },
+    "sphere3": {
+      "__comment" : "# sphere, outer, left, orange",
+      "type": "sphere",
+      "geometry": [-5,-3,10, 2],
+      "color": "0xFFCCCC55",
       "material" : "none",
       "texture" : "none"
     },
@@ -67,7 +83,7 @@
        "__comment" : "# Ceiling1",
       "type": "triangle",
       "geometry": [10,10,-20, 10,10,-10, -10,10,-10],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },
@@ -75,7 +91,7 @@
       "__comment" : "# Ceiling2",
       "type": "triangle",
       "geometry": [-10,10,-20, 10,10,-20, -10,10,-10],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },
@@ -83,7 +99,7 @@
       "__comment" : "# Floor 1",
       "type": "triangle",
       "geometry": [10,-10,-10,10,-10,-20,-10,-10,-20],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },
@@ -91,7 +107,7 @@
       "__comment" : "# Floor 2",
       "type": "triangle",
       "geometry": [-10,-10,-10, 10,-10,-10, -10,-10,-20],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },
@@ -99,7 +115,7 @@
       "__comment" : "# Back Wall 1",
       "type": "triangle",
       "geometry": [-10,-10,-20 ,10,-10,-20, -10,10,-20],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },
@@ -107,7 +123,7 @@
       "__comment" : "#  Back Wall 2",
       "type": "triangle",
       "geometry": [10,10,-20 ,-10,10,-20, 10,-10,-20],
-      "color": "0xFF333333",
+      "color": "0xFF777777",
       "material" : "none",
       "texture" : "none"
     },

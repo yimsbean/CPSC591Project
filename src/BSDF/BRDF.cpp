@@ -26,7 +26,10 @@ Color
 BRDF::f(const ShadeRec& sr, const glm::vec3& wo, const glm::vec3& wi) const {
 	return (black);
 }
-
+Color
+BRDF::sample_f(const ShadeRec& sr, const glm::vec3& wo, glm::vec3& wi) const {
+	return (black);
+}
 Color
 BRDF::rho(const ShadeRec& sr, const glm::vec3& wo) const {
 	return (black);

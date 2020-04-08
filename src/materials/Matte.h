@@ -37,6 +37,7 @@ class Matte: public Material {
 				
 		virtual Color										
 		shade(ShadeRec& sr);
+
 		
 	private:
 		

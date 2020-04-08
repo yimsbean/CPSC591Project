@@ -4,22 +4,22 @@
 
 namespace Engine {
 
-class Sphere : public Object{
+class UVSphere : public Object{
     public:
     //@variables
 
     //@basics(constructor, desturctor, ...)
-        Sphere();
-        Sphere(const Sphere& sp);
-        Sphere(const glm::vec3& center, float radius);
+        UVSphere();
+        UVSphere(const UVSphere& sp);
+        UVSphere(const glm::vec3& center, float radius, const glm::vec3& cameraLocation);
         
-        virtual ~Sphere();
+        virtual ~UVSphere();
 
-		virtual Sphere* 
+		virtual UVSphere* 
 		clone() const; //allow clone
 
-        Sphere& 														
-		operator= (const Sphere& rhs);
+        UVSphere& 														
+		operator= (const UVSphere& rhs);
     //@functions
 
         void
@@ -44,25 +44,26 @@ class Sphere : public Object{
     //@variables
         glm::vec3   center;
         float       radius;
+        glm::vec3   cameraLocation;
     //@basics(constructor, desturctor, ...)
 
     //@functions
 };
 
 inline void
-Sphere::set_center(const glm::vec3& c) {
+UVSphere::set_center(const glm::vec3& c) {
 	center = c;
 }
 		
 inline void
-Sphere::set_center(const double x, const double y, const double z) {
+UVSphere::set_center(const double x, const double y, const double z) {
 	center.x = x;
 	center.y = y;
 	center.z = z;
 }
 		
 inline void
-Sphere::set_radius(const double r) {
+UVSphere::set_radius(const double r) {
 	radius = r;
 }
 

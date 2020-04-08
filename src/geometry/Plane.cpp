@@ -65,7 +65,10 @@ Plane::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 }
 
 // Hit function for shadow rays
-
+glm::vec3
+Plane::get_center(){
+	return point;
+}
 
 //private------
 //@basics(constructor, desturctor, ...)

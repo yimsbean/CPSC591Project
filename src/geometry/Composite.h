@@ -34,6 +34,8 @@ class Composite : public Object{
         virtual bool 
 		hit(const Ray& ray, double& tmin, ShadeRec& sr) const;		 					 
 		
+        virtual glm::vec3
+		get_center();
     private:
     //@variables
         std::vector<Object*> objects;

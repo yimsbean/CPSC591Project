@@ -10,13 +10,11 @@ namespace Engine{
 
 FresnelReflector::FresnelReflector(void)
 	: 	BRDF(),
-		eta_in(0.0), 
-		eta_out(1.0)
+		eta(1.0)
 {}
 FresnelReflector::FresnelReflector(const FresnelReflector& fr)
 	: 	BRDF(fr),
-		eta_in(fr.eta_in), 
-		eta_out(fr.eta_out)
+		eta(fr.eta)
 {}
 // ---------------------------------------------------------- destructor
 
@@ -29,12 +27,25 @@ FresnelReflector*
 FresnelReflector::clone(void) const {
 	return (new FresnelReflector(*this));
 }	
-
+FresnelReflector&							
+FresnelReflector::operator= (const FresnelReflector& rhs) {
+	if (this == &rhs)
+		return (*this);
+	eta = rhs.eta;
+	return (*this);
+}     
 
 // ---------------------------------------------------------- f
 
 Color
 FresnelReflector::f(const ShadeRec& sr, const glm::vec3& wo, const glm::vec3& wi) const {
+	return (black);
+}
+
+// ---------------------------------------------------------- rho
+
+Color
+FresnelReflector::rho(const ShadeRec& sr, const glm::vec3& wo) const {
 	return (black);
 }
 
@@ -51,8 +62,6 @@ Color
 FresnelReflector::sample_f(const ShadeRec& sr, const glm::vec3& wo, glm::vec3& wr) const {
 	float ndotwo = glm::dot(sr.normal, wo);
 	wr = -wo + 2.f * sr.normal * ndotwo; 
-    Color test = white / fabs(glm::dot(sr.normal,wr));
-    //std::cout<<"REFELCTOR : [" <<fresnel(sr)<< "]\n";
 	return (fresnel(sr) * white / fabs(glm::dot(sr.normal,wr)));
 }
 
@@ -64,31 +73,21 @@ float
 FresnelReflector::fresnel(const ShadeRec& sr) const {
 	glm::vec3 normal(sr.normal);
 	float ndotd = -glm::dot(normal, sr.ray.d);
-	float eta;
+	float e = eta;
 	
 	if (ndotd < 0.0) { 
 		normal = -normal;
-		eta = eta_out / eta_in;
+		e = 1 / e;
 	}
-	else
-		eta = eta_in / eta_out;
 
 	float cos_theta_i 		= -glm::dot(normal, sr.ray.d); 
-	float temp 				= 1.0 - (1.0 - cos_theta_i * cos_theta_i) / (eta * eta);
-	float cos_theta_t 		= sqrt (1.0 - (1.0 - cos_theta_i * cos_theta_i) / (eta * eta));
-	float r_parallel 		= (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
-	float r_perpendicular 	= (cos_theta_i - eta * cos_theta_t) / (cos_theta_i + eta * cos_theta_t);
+	float cos_theta_t 		= sqrt (1.0 - (1.0 - cos_theta_i * cos_theta_i) / (e * e));
+	float r_parallel 		= (e * cos_theta_i - cos_theta_t) / (e * cos_theta_i + cos_theta_t);
+	float r_perpendicular 	= (cos_theta_i - e * cos_theta_t) / (cos_theta_i + e * cos_theta_t);
 	float kr 				= 0.5 * (r_parallel * r_parallel + r_perpendicular * r_perpendicular);
 	
 
 	return (kr);
-}
-
-// ---------------------------------------------------------- rho
-
-Color
-FresnelReflector::rho(const ShadeRec& sr, const glm::vec3& wo) const {
-	return (black);
 }
 
 }

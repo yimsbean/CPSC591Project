@@ -11,6 +11,7 @@
 #include "BTDF.h"
 
 namespace Engine{
+//used in bubble(material)
 class FresnelTransmitter: public BTDF {
 	public:
 	
@@ -18,19 +19,16 @@ class FresnelTransmitter: public BTDF {
 		
 		FresnelTransmitter(const FresnelTransmitter& ft);
 		
+		virtual ~FresnelTransmitter(void);
+
 		virtual FresnelTransmitter*
 		clone(void);
-		
-		~FresnelTransmitter(void);
 		
 		FresnelTransmitter&							
 		operator= (const FresnelTransmitter& rhs);
 		
 		void
-		set_eta_in(const float ei);
-		
-		void
-		set_eta_out(const float eo);
+		set_eta(const float e);
 
 		bool													
 		tir(const ShadeRec& sr) const;
@@ -43,27 +41,20 @@ class FresnelTransmitter: public BTDF {
 		
         virtual float
         fresnel(const ShadeRec& sr) const;
-        
+
 		virtual Color
 		rho(const ShadeRec& sr, const glm::vec3& wo) const;
 				
 	private:
-        float   eta_in;
-        float   eta_out;
+        float   eta;
 };
 
 
 // -------------------------------------------------------------- set_kt
 
 inline void
-FresnelTransmitter::set_eta_in(const float ei) {
-	eta_in = ei;
+FresnelTransmitter::set_eta(const float e) {
+	eta = e;
 }
 
-// -------------------------------------------------------------- set_ior
-
-inline void
-FresnelTransmitter::set_eta_out(const float eo) {
-	eta_out = eo;
-}
 }
