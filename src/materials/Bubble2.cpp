@@ -65,7 +65,23 @@ Bubble2::shade(ShadeRec& sr){
 	}
 	return color;
 }
+//reflectivity Map
+Color
+Bubble2::reflectivityShade(ShadeRec& sr){
+	Image* img = sr.w.refelctivity_image;
+	float thickness = sr.w.bubble_thickness;
+	
+	float angle = glm::dot(
+		sr.normal,
+		-sr.ray.d
+	);
+	if(angle >= 1.f) angle = 1.f;
+	else if (angle <= -1.f) angle = -1.f;
 
+	//0 <= degree <= 90
+	int degree = glm::degrees(glm::acos(angle));
+	return img->get_color(thickness,degree);
+}
 //only render texture
 Color
 Bubble2::textureShade(ShadeRec& sr){
@@ -79,10 +95,9 @@ Bubble2::lighting(ShadeRec& sr){
 	glm::vec3 	wo 			= -sr.ray.d;
 	glm::vec3   wi;
 	Color 	color = sr.w.background_color;
-	float 	radiance;
 	
 	for(auto& light: sr.w.lights){
-		glm::vec3 wi = light->get_direction(sr);    
+		wi = light->get_direction(sr);    
 		float ndotwi = glm::dot(sr.normal, wi);
 		if (ndotwi > 0.0) 
 			color += sr.w.background_color;

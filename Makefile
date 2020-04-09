@@ -7,6 +7,7 @@ ifdef debug
 	CXXFLAGS +=-g
 	LINKFLAGS += -flto
 endif
+LIBDIR=lib
 # LIB ---
 GLADVER=glad
 GLADDIR=lib/$(GLADVER)
@@ -24,7 +25,7 @@ GLMVER=glm
 GLMDIR=lib/$(GLMVER)
 GLMLIB:=$(patsubst %, -I%,$(GLMDIR))
 
-LIBDIR=-Ilib$(GLADLIB)$(GLEWLIB)$(GLFWLIB)$(GLMLIB)
+LIBDIRS=-Ilib$(GLADLIB)$(GLEWLIB)$(GLFWLIB)$(GLMLIB)
 
 # SRC, OBJ ---
 SRCDIR=src
@@ -33,7 +34,7 @@ SRCLIST=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp) $(wildcard $(S
 SRCSOURCE=$(addprefix $(SRCDIRS)/%.cpp)
 
 OBJDIR=obj
-OBJLIST=$(addprefix $(OBJDIR)/,$(notdir $(SRCLIST:.cpp=.o))) $(OBJDIR)/glad.o
+OBJLIST=$(addprefix $(OBJDIR)/,$(notdir $(SRCLIST:.cpp=.o))) $(OBJDIR)/glad.o $(OBJDIR)/specrend.o
 
 VPATH=$(SRCDIR) $(SRCDIRS)
 INCDIR:=$(patsubst %, -I%,$(SRCDIRS))
@@ -45,18 +46,22 @@ EXECUTABLE= program.out
 all: buildDirectories $(EXECUTABLE) 
 
 $(EXECUTABLE): $(OBJLIST) 
-	$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIR)
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIRS)
  
+#spedcrend(wavelength->rgb)
+$(OBJDIR)/specrend.o: $(LIBDIR)/specrend.c
+	$(CXX) -c $(CXXFLAGS) $(LIBDIRS) $< -o $@
+
 #glad
 $(OBJDIR)/glad.o: $(GLADDIR)/glad.c
-	$(CXX) -c $(CXXFLAGS) $(LIBDIR) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(LIBDIRS) $< -o $@
 
 $(OBJDIR)/%.o : %.cpp
-	$(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIR) $< -o $@ 
+	$(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIRS) $< -o $@ 
 
 #all other cpp files
 #loopmake :
-#	$(foreach srcfile, $(SRCLIST), $(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIR) $(srcfile) -o $(addprefix $(OBJDIR)/,$(notdir $(srcfile:.cpp=.o)));)
+#	$(foreach srcfile, $(SRCLIST), $(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIRS) $(srcfile) -o $(addprefix $(OBJDIR)/,$(notdir $(srcfile:.cpp=.o)));)
 
 #----------------------------------------------------------
 

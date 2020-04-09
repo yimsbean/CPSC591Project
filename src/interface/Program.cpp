@@ -115,14 +115,16 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				return;
 		}
 		//camera movement
-		float DEGREE = 5.f;
-		auto& camera = (program->getWorld())->camera;
+		float DEGREE = 4.f;
+		auto* world = program->getWorld();
+		// PINHOLE CAMERA!
+		auto& camera = world->camera;
 		switch(key){
 			//moving "normal"
 			case GLFW_KEY_Q:
-				camera.add_roll(-DEGREE);break;
-			case GLFW_KEY_E:
 				camera.add_roll(DEGREE);break;
+			case GLFW_KEY_E:
+				camera.add_roll(-DEGREE);break;
 
 			//moving "lookat", world coordiate
 			case GLFW_KEY_W:
@@ -131,9 +133,9 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				camera.add_pitch(-DEGREE);break;
 			//moving "normal"
 			case GLFW_KEY_A:
-				camera.add_yaw(-DEGREE);break;
-			case GLFW_KEY_D:
 				camera.add_yaw(DEGREE);break;
+			case GLFW_KEY_D:
+				camera.add_yaw(-DEGREE);break;
 			
 			//moving "eye" on the surface of "view" sphere
 			case GLFW_KEY_UP:
@@ -150,12 +152,30 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			case GLFW_KEY_PAGE_DOWN:
 				camera.add_zoom(DEGREE);break;
 
-				//move forward
+				//change fov
+			case GLFW_KEY_LEFT_BRACKET:
+				camera.add_fov(DEGREE);break;
+			case GLFW_KEY_RIGHT_BRACKET:
+				camera.add_fov(-DEGREE);break;
+				
+			//move forward
 			case GLFW_KEY_SPACE:
-				camera.move(-DEGREE);break;
-
+				if(mods != GLFW_MOD_SHIFT)
+					camera.move(DEGREE);
+				else
+					camera.move(-DEGREE);
+				break;
 			case GLFW_KEY_R:
 				camera.reset();break;
+			//------
+			//change bubble thickness
+			case GLFW_KEY_KP_ADD:
+			case GLFW_KEY_EQUAL:
+				world->add_bubble_thickness(DEGREE);break;
+			case GLFW_KEY_KP_SUBTRACT:
+			case GLFW_KEY_MINUS:
+				world->add_bubble_thickness(-DEGREE);break;
+
 			default: return;
 		}
 		if(DEBUG_CAMERA){
@@ -165,7 +185,7 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				" UP = [" <<camera.get_up().x <<", " <<camera.get_up().y <<", " <<camera.get_up().z <<"] " <<
 				" FOV = [" <<camera.get_fov() <<"]\n";
 		}
-		program->getWorld()->update();
+		world->update();
 		//swap buffer only when updated
 		glfwSwapBuffers(window);
 	}else if(action == GLFW_RELEASE){

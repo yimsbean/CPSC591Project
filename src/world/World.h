@@ -25,13 +25,15 @@
 #include "Camera.h"
 #include "Ray.h"
 
-#include "Image.h"
 //for functions
+#include "Image.h"
 #include "Imagebuffer.h"
 
 
 namespace Engine{
-class Object; //pointer
+    //pointers
+class Object;
+class ImageTexture;
 
 class World {
 public:
@@ -41,13 +43,18 @@ public:
     ImageBuffer         image;
     Camera              camera;
     Light*   		    ambient_ptr = nullptr;
+    Whitted*			bubble_tracer_ptr = nullptr;    //for OLD METHOD
+
     RayCast*			background_tracer_ptr = nullptr;
-    Whitted*			bubble_tracer_ptr = nullptr;
+    Image*              refelctivity_image = nullptr;
 
     std::vector<Light*> lights;
     std::vector<Object*> objects;
 
     std::vector<Object*> bubbles;
+
+    float init_bubble_thickness = 22;
+    float bubble_thickness; //0~2000nm,*10nm,
     //int texture_a = 120;
     //std::vector<Image*> bubbleTextures;
     
@@ -90,10 +97,10 @@ public:
 
     ShadeRec
 	hit_object(const Ray& ray,const Object* obj);
-
-    ShadeRec
-	hit_light(const Ray& ray,const Object* obj);
     
+    void
+    add_bubble_thickness(float degree);
+
 private:
     
     void
@@ -107,6 +114,9 @@ private:
 
     void
     reset();
+
+    void
+    generateReflectivityTexture();
 };
 
 }

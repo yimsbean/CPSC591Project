@@ -140,8 +140,9 @@ void ImageBuffer::AdditiveBlendPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
     //preservation of energy!
-    float t = 0.8f;
-    m_imageData[index] = t*m_imageData[index] + (1-t)*colour;
+    //float t = 0.5f;
+    //m_imageData[index] = t*m_imageData[index] + (1-t)*colour;
+    m_imageData[index] = m_imageData[index] + colour;
     SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;
@@ -153,7 +154,7 @@ void ImageBuffer::MultiplicativeBlendPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
     //preservation of energy?
-    m_imageData[index] = m_imageData[index] * (1.f-colour);
+    m_imageData[index] = m_imageData[index] * (colour);
     SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;

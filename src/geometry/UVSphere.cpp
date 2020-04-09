@@ -54,7 +54,6 @@ UVSphere::set_color(const float r, const float g, const float b){
 }
 bool
 UVSphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
-	
 	double 		t;
 	glm::vec3	temp 	= ray.o - center;
 	double 		a 		= glm::dot(ray.d, ray.d);
@@ -90,10 +89,10 @@ UVSphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 		float PHI = glm::asin(y);
 		float xdivcosphi = x/glm::cos(PHI);
 		float THETA;
-		if(xdivcosphi >= -1.f && xdivcosphi <= 1.f){
+		if(xdivcosphi > -1.f && xdivcosphi < 1.f){
 			THETA = glm::acos(xdivcosphi);
 		}else{
-			THETA =  glm::acos(1); // == 0
+			THETA = glm::acos(1); // == 0
 		}
 
 		
@@ -178,9 +177,6 @@ UVSphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 		if(u >= 0.f && u <= 1.f && v >= 0.f && v <= 1.f){
 			sr.u = u;
 			sr.v = v;
-		}
-		else{
-			std::cerr<< "[" << u <<","<<v <<"]\n";
 		}
 		return (true);
 	} 

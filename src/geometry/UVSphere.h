@@ -40,6 +40,9 @@ class UVSphere : public Object{
 		
         virtual glm::vec3
 		get_center();
+
+        float
+        get_radius();
     private:
     //@variables
         glm::vec3   center;
@@ -66,5 +69,8 @@ inline void
 UVSphere::set_radius(const double r) {
 	radius = r;
 }
-
+inline float
+UVSphere::get_radius(){
+    return radius;
+}
 }

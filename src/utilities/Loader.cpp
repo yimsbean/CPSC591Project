@@ -16,10 +16,71 @@
 #include "Bubble2.h"
 
 
+#include "specrend.h"
 #include "json.hpp"
 
 namespace Engine{
+//R(λ, θ, d)
+float
+get_cos_lambda_theta(float lambda, float theta, float d){
+	float cos_lambda_theta,r_lambda_theta;
+	float r_parallel,r_perpendicular,cos_theta_i,cos_theta_t;
+	float eta = 1.33;
 
+	cos_theta_i = glm::cos(theta);
+	cos_theta_t = sqrt (1.0 - (1.0 - cos_theta_i * cos_theta_i) / (eta * eta));
+	r_parallel 		= (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
+	r_perpendicular = (cos_theta_i - eta * cos_theta_t) / (cos_theta_i + eta * cos_theta_t);
+
+	cos_lambda_theta = 4*M_PI/lambda*eta*d*cos_theta_i;
+	return pow(r_parallel,2)*(1-cos_lambda_theta)/(1+pow(r_parallel,4)-2*pow(r_parallel,2)*cos_lambda_theta) +
+		pow(r_perpendicular,2)*(1-cos_lambda_theta)/(1+pow(r_perpendicular,4)-2*pow(r_perpendicular,2)*cos_lambda_theta);
+			
+}
+void
+World::generateReflectivityTexture(){
+	//x = 0~2000nm, each 10nm
+	//y = 0~90(degree), each 1deg
+	Color L;
+	int wid = 201, hei = 91;
+	int dx = 10, dy = 1;
+	float ddx,ddy;
+
+	//http://www.fourmilab.ch/documents/specrend
+	double x,y,z,r,g,b;
+	struct colourSystem *cs = &SMPTEsystem;
+	
+	//https://en.wikipedia.org/wiki/Sodium-vapor_lamp
+	//double bbtemp = 2700; //2600K~2800K for the sodium lamp
+	double sodium_light_wavelength = 589;	//589 nm
+	//https://www.photonics.com/Articles/Light-Emitting_Diodes_A_Primer/a36706
+	double blue_led_light_wavelength = 475;		//450~475nm
+	double green_led_light_wavelength = 525;	//520~530nm
+	double yellow_led_light_wavelength = 590;	//590nm
+	double red_led_light_wavelength = 625;		//625nm
+	double limegreen_led_light_wavelength = 656;	//656nm
+	double orange_led_light_wavelength = 605;	//605nm
+
+	double light_wavelength = sodium_light_wavelength;
+
+	Image* texture = new Image(wid,hei);
+	for(int j=0;j<hei;++j){
+		for(int i=0;i<wid;++i){
+			//R(λ, θ, d)E(λ), x = d, y = θ
+			ddx = dx * i;			// x = d
+			ddy = glm::radians((float)dy * j);	// y = θ
+			
+			spectrum_to_xyz(light_wavelength,&x, &y, &z);
+       		xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+			L = Color(r,g,b)*get_cos_lambda_theta(light_wavelength,ddy,ddx);
+
+			//image.SetPixel(i, j, glm::vec3(L.r,L.g,L.b));
+			texture->set_color(i,j,L);
+		}
+	}
+	refelctivity_image = texture;
+	//image.Render();
+}
 void
 World::readFromSceneFile(const char* fileName){
 	//0. AMBIENT LIGHT

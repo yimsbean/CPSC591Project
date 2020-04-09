@@ -65,14 +65,14 @@ Camera::get_direction(glm::vec2 in) {
 	glm::vec3 u = glm::cross(glm::normalize(up),w);
 	glm::vec3 v = glm::cross(w,u);
 
-	return glm::normalize(in.x * u + in.y * v - 500.f * w);
+	return glm::normalize(in.x * u + in.y * v - 2000.f * fov/(float)M_PI * w);
 }
 void
 Camera::recalc_up(){
 	//assume upvec was normlized
 	glm::vec3 lookvec;
 	if(lookat != eye)
-		 lookvec = glm::normalize(lookat - eye);
+		lookvec = glm::normalize(eye - lookat);
 	else	
 		lookvec = glm::normalize(glm::vec3(1.f,0.f,1.f));
 	up = glm::cross(glm::cross(lookvec, up),lookvec);
@@ -81,22 +81,22 @@ Camera::recalc_up(){
 //key : WS
 void
 Camera::add_pitch(const float deg){
-	lookat += deg/20 * up;
-	eye += deg/20 * up;
+	auto degree = deg/4 * up;
+	lookat += degree; eye += degree;
 }
 //key : AD
 void
 Camera::add_yaw(const float deg){
-	auto right = glm::normalize(glm::cross((lookat - eye),up));
-	lookat += deg/20 * right;
-	eye += deg/20 * right;
+	auto right = glm::normalize(glm::cross((eye - lookat),up));
+	auto degree = deg/4 * right;
+	lookat += degree; eye += degree;
 }
 //moving "normal"
 //key : QE
 void
 Camera::add_roll(const float deg){
 	//NORMAL rotating around VIEWVECTOR
-	up = glm::rotate(glm::mat4(1.f),glm::radians(deg), glm::normalize(eye - lookat)) * glm::vec4(up,1.f);
+	up = glm::rotate(glm::mat4(1.f),glm::radians(4*deg), glm::normalize(eye - lookat)) * glm::vec4(up,1.f);
 }
 
 
@@ -124,7 +124,7 @@ Camera::add_camera(const float x, const float y){
 //key : PGUP/PGDN
 void
 Camera::add_zoom(const float deg){
-	eye = lookat + (1 + deg/180) * (eye - lookat);
+	eye = lookat + (1 + deg/45) * (eye - lookat);
 }
 
 //key : space
@@ -133,13 +133,16 @@ Camera::move(const float deg){
 	float distance = glm::distance(lookat,eye);
 	glm::vec3 viewVec = glm::normalize(eye - lookat);
 
-	lookat = lookat + (deg/100) * (eye - lookat);
+	lookat = lookat - (deg/50) * (eye - lookat);
 	eye = lookat + distance*viewVec;
 }
 
 void
 Camera::add_fov(const float deg){
-	fov += deg;
+	auto degree = fov + deg*M_PI/720;
+	//0~180 deg
+	if(!(degree > M_PI/2 &&degree < 0))
+	fov = degree;
 }
 
 

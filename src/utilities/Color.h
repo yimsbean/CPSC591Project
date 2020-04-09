@@ -49,7 +49,7 @@ class Color {
 		powc(float p) const;
 		
 		float												// the average of the components
-		average(void) const;			
+		average(void) const;		
 };
 
 static const Color black = Color(0.f,0.f,0.f);
@@ -160,5 +160,12 @@ inline float
 Color::average(void) const {
 	return (0.333333333333 * (r + g + b));
 }
+
+//deprecated
+float
+colortowave(Color c);
+//deprecated
+Color
+wavetocolor(float l);
 
 }

@@ -26,6 +26,9 @@ class Bubble2: public Material {
 	shade(ShadeRec& sr);
     
     Color
+    reflectivityShade(ShadeRec& sr);
+    
+    Color
     textureShade(ShadeRec& sr);
     
     Color

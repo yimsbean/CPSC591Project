@@ -60,15 +60,28 @@ RayCast::trace_ray(const Ray ray, float& tmin, const int depth) const{
 	return trace_ray(ray,depth);
 }
 //-----
-
+Color
+RayCast::trace_reflectivity(const Ray ray,const Object* obj) const{
+	ShadeRec sr(world_ptr->hit_object(ray,obj));
+	if (sr.hit_an_object) {
+		sr.ray = ray;
+		return (((Bubble2*)(sr.material_ptr))->reflectivityShade(sr));
+	}   
+	else{
+		//no colour added
+		return (black);
+	}
+}
 Color	
 RayCast::trace_object(const Ray ray, const Object* obj) const{
 	ShadeRec sr(world_ptr->hit_object(ray,obj));
 	if (sr.hit_an_object) {
+		sr.ray = ray;
 		return (((Bubble2*)(sr.material_ptr))->textureShade(sr));
 	}   
 	else{
-		return (world_ptr->background_color);
+		//no colour added
+		return (black);
 	}
 }
 Color	
@@ -79,7 +92,8 @@ RayCast::trace_light(const Ray ray, const Object* obj) const{
 		return (((Bubble2*)(sr.material_ptr))->lighting(sr));
 	}   
 	else{
-		return (world_ptr->background_color);
+		//no colour added
+		return (black);
 	}
 }
 

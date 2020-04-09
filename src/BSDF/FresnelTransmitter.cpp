@@ -83,7 +83,6 @@ FresnelTransmitter::tir(const ShadeRec& sr) const {
 
 Color
 FresnelTransmitter::sample_f(const ShadeRec& sr, const glm::vec3& wo, glm::vec3& wt) const {
-	
 	glm::vec3 normal(sr.normal);
 	float ndotwo = glm::dot(normal, wo);
 	float e = eta;

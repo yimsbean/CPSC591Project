@@ -23,6 +23,10 @@ class RayCast: public Tracer {
 		virtual Color	
 		trace_ray(const Ray ray, float& tmin, const int depth) const;
 
+		//--
+		virtual Color
+		trace_reflectivity(const Ray ray,const Object* obj) const;
+
 		virtual Color	
 		trace_object(const Ray ray,const Object* obj) const;
 

@@ -42,7 +42,7 @@
     "sphere3": {
       "__comment" : "# sphere, outer, left, orange",
       "type": "sphere",
-      "geometry": [-5,-3,10, 2],
+      "geometry": [-5,-3,12, 2],
       "color": "0xFFCCCC55",
       "material" : "none",
       "texture" : "none"
