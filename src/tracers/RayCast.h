@@ -32,5 +32,8 @@ class RayCast: public Tracer {
 
 		virtual Color	
 		trace_light(const Ray ray,const Object* obj) const;
+
+		virtual Color
+		trace_bubble(const Ray ray, const Object* obj) const;
 };
 }

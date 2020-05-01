@@ -9,7 +9,6 @@
 // with reflective materials 
 
 #include "BRDF.h"
-#include "Constants.h"
 
 namespace Engine{
 //REQUIRED FOR "REFLECTIVE" MATERIALS

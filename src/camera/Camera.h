@@ -31,6 +31,15 @@ class Camera {
 		float
 		get_fov();
 
+		glm::vec3&
+		get_u();
+
+		glm::vec3&
+		get_v();
+
+		glm::vec3&
+		get_w();
+
 		glm::vec3
 		get_direction(glm::vec2 in);
 		//@for quick moving + reset()
@@ -71,6 +80,9 @@ class Camera {
 		//moving "eye" on the surface of "view" sphere
 		void
 		add_camera(const float x, const float y);
+		//moving "lookat"
+		void
+		move_camera(const float x, const float y);
 		void
 		add_zoom(const float deg);
 
@@ -81,13 +93,20 @@ class Camera {
 		void
 		add_fov(const float deg);
 
-
+		void
+		recalcUVW();
 	private:		
 	//@variables
 		glm::vec3			eye;				// eye point
 		glm::vec3			lookat; 			// lookat point
 		glm::vec3			up;					// up vector
 		float				fov;
+
+		//prevent re-calculation of resource-heavy calculations(normalize)
+		//used in recalcUVW and get_direction
+		glm::vec3			u;					// xcoord in screen
+		glm::vec3			v; 					// ycoord in screen
+		glm::vec3			w;					// depth
 	
 		glm::vec3			init_eye;				// eye point
 		glm::vec3			init_lookat; 			// lookat point
@@ -101,6 +120,7 @@ class Camera {
 		
 		void 
 		recalc_up();
+
 };
 inline glm::vec3&
 Camera::get_eye() {
@@ -117,6 +137,18 @@ Camera::get_up() {
 inline float
 Camera::get_fov() {
 	return fov;
+}
+inline glm::vec3&
+Camera::get_u() {
+	return u;
+}
+inline glm::vec3&
+Camera::get_v() {
+	return v;
+}
+inline glm::vec3&
+Camera::get_w() {
+	return w;
 }
 
 // ----------------------------------------------------------------- set_eye

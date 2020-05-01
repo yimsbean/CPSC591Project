@@ -38,7 +38,7 @@ class Color {
 		
 		Color& 											// compound division by a float
 		operator/= (const float a); 
-				
+
 		Color 											// component-wise multiplication
 		operator* (const Color& c) const;
 		
@@ -134,7 +134,6 @@ Color::operator* (const Color& c) const {
 	return (Color (r * c.r, g * c.g, b * c.b));
 } 
 
-
 // ----------------------------------------------------------------------- operator==
 // are two Colors the same?
 
@@ -143,6 +142,15 @@ Color::operator== (const Color& c) const {
 	return (r == c.r && g == c.g && b == c.b);
 }
 
+static Color
+operator+ (const float f, const Color& c) {
+	return (Color(f + c.r, f + c.g, f + c.b));
+}
+
+static Color
+operator- (const float f, const Color& c) {
+	return (Color(f - c.r, f - c.g, f - c.b));
+}
 
 
 

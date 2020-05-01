@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "Constants.h"
+//#include "Constants.h"
 #include "Color.h"
 #include "ShadeRec.h"
 

@@ -21,25 +21,6 @@
 
 #include "Imagebuffer.h"
 
-// --------------------------------------------------------------------------
-// Set these defines to choose which image library to use for saving image
-// files to disk. Obviously, you shouldn't set more than one!
-
-#define USE_STB_IMAGE
-// #define USE_IMAGEMAGICK
-// #define USE_FREEIMAGE
-
-#ifdef USE_STB_IMAGE
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image_write.h>
-#endif
-#ifdef USE_IMAGEMAGICK
-#include <Magick++.h>
-#endif
-#ifdef USE_FREEIMAGE
-#include <FreeImage.h>
-#endif
-
 using namespace std;
 using namespace glm;
 
@@ -102,10 +83,8 @@ bool ImageBuffer::Initialize()
     GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
         cout << "ImageBuffer ERROR: Framebuffer object not complete!" << endl;
-
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-    return status == GL_FRAMEBUFFER_COMPLETE;
+    return (status == GL_FRAMEBUFFER_COMPLETE);
 }
 
 void ImageBuffer::Destroy()
@@ -126,8 +105,10 @@ void ImageBuffer::Destroy()
 void ImageBuffer::SetPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
+    if(OPTIMIZED_METHOD)
+        if(m_imageData[index] == colour) return;
     m_imageData[index] = colour;
-    SetPixelColourInRange(index);
+    //SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;
     m_modifiedLower = std::min(m_modifiedLower, y);
@@ -139,11 +120,13 @@ void ImageBuffer::SetPixel(int x, int y, vec3 colour)
 void ImageBuffer::AdditiveBlendPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
+    if(OPTIMIZED_METHOD)
+        if(m_imageData[index] == colour) return;
     //preservation of energy!
     //float t = 0.5f;
     //m_imageData[index] = t*m_imageData[index] + (1-t)*colour;
     m_imageData[index] = m_imageData[index] + colour;
-    SetPixelColourInRange(index);
+    //SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;
     m_modifiedLower = std::min(m_modifiedLower, y);
@@ -153,15 +136,32 @@ void ImageBuffer::AdditiveBlendPixel(int x, int y, vec3 colour)
 void ImageBuffer::MultiplicativeBlendPixel(int x, int y, vec3 colour)
 {
     int index = y * m_width + x;
+    if(OPTIMIZED_METHOD)
+        if(m_imageData[index] == colour) return;
     //preservation of energy?
     m_imageData[index] = m_imageData[index] * (colour);
-    SetPixelColourInRange(index);
+    //SetPixelColourInRange(index);
     // mark that something was changed
     m_modified = true;
     m_modifiedLower = std::min(m_modifiedLower, y);
     m_modifiedUpper = std::max(m_modifiedUpper, y+1);
 }
-
+void ImageBuffer::SetPixelOnLight(int x, int y, vec3 colour)
+{
+    int index = y * m_width + x;
+    if(OPTIMIZED_METHOD)
+        if(m_imageData[index] == colour) return;
+    //preservation of energy!
+    //float t = 0.5f;
+    //m_imageData[index] = t*m_imageData[index] + (1-t)*colour;
+    //if(colour == glm::vec3(0.f,0.f,0.f)) return;
+    m_imageData[index] = colour;
+    //SetPixelColourInRange(index);
+    // mark that something was changed
+    m_modified = true;
+    m_modifiedLower = std::min(m_modifiedLower, y);
+    m_modifiedUpper = std::max(m_modifiedUpper, y+1);
+}
 void ImageBuffer::SetPixelColourInRange(int index){
     if(m_imageData[index].x > 1.f)
         m_imageData[index].x = 1.f;
@@ -191,8 +191,8 @@ void ImageBuffer::Render()
 
         // bind texture and copy only the rows that have been changed
         glBindTexture(GL_TEXTURE_RECTANGLE, m_textureName);
-        glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, m_modifiedLower, m_width,
-                        sizeY, GL_RGB, GL_FLOAT, &m_imageData[index]);
+        glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, m_modifiedLower, 
+                        m_width, sizeY, GL_RGB, GL_FLOAT, &m_imageData[index]);
         glBindTexture(GL_TEXTURE_RECTANGLE, 0);
 
         // mark that we've updated the texture
@@ -205,115 +205,6 @@ void ImageBuffer::Render()
                     0, 0, m_width, m_height,
                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-}
-
-// --------------------------------------------------------------------------
-
-bool ImageBuffer::SaveToFile(const string &imageFileName)
-{
-    if (m_width == 0 || m_height == 0)
-    {
-        cout << "ImageBuffer ERROR: Trying to save uninitialized image!" << endl;
-        return false;
-    }
-    cout << "ImageBuffer saving image to " << imageFileName << "..." << endl;
-
-#ifdef USE_STB_IMAGE
-    const unsigned numComponents = 3; //RGB
-    unsigned char* pixels = new unsigned char[m_width*m_height*numComponents];
-
-    for (int y = 0; y < m_height; ++y)
-        for (int x = 0; x < m_width; ++x)
-        {
-            glm::vec3& color = m_imageData[y * m_width + x];
-            int i = (m_height - 1 - y) * m_width + x;
-            i *= numComponents;
-
-            pixels[i]     = (unsigned char) (255 * clamp(color.r, 0.f, 1.f));	// red
-            pixels[i + 1] = (unsigned char) (255 * clamp(color.g, 0.f, 1.f));	// green
-            pixels[i + 2] = (unsigned char) (255 * clamp(color.b, 0.f, 1.f));	// blue
-        }
-
-    // Save the image to disk
-    int stride = 0;
-    if (!stbi_write_png(imageFileName.data(), m_width, m_height, numComponents, pixels, stride))
-    {
-        // Fail! delete and exit
-        cout << "STB failed to write image " << imageFileName << endl;
-        delete[] pixels;
-        return false;
-    }
-
-    //success, delete and exit
-    delete[] pixels;
-    return true;
-#endif
-
-#ifdef USE_IMAGEMAGICK
-    using namespace Magick;
-
-    // allocate an image object the same size as our buffer
-    Image myImage(Geometry(m_width, m_height), "black");
-
-    // copy the image data from our memory buffer into the Magick++ one.
-    int index = 0;
-    for (int i = m_height-1; i >= 0; --i)
-        for (int j = 0; j < m_width; ++j)
-        {
-            vec3 v = m_imageData[index++];
-            vec3 c = clamp(v, 0.f, 1.f) * float(MaxRGB);
-            Color colour(c.r, c.g, c.b);
-            myImage.pixelColor(j, i, colour);
-        }
-
-    // try to write the image to the specified file
-    try {
-        myImage.write(imageFileName);
-    }
-    catch (Magick::Error &error) {
-        cout << "Magick++ failed to write image " << imageFileName << endl;
-        cout << "ERROR: " << error.what() << endl;
-        return false;
-    }
-    return true;
-#endif
-
-#ifdef USE_FREEIMAGE
-    FreeImage_Initialise();
-    FIBITMAP* bitmap = FreeImage_Allocate(m_width, m_height, 24);
-    if (bitmap == nullptr)
-    {
-        cout << "FreeImage failed to allocate image " << imageFileName << endl;
-        FreeImage_DeInitialise();
-        return false;
-    }
-    RGBQUAD colour;
-    int index = 0;
-    for (int i = 0; i < m_height; ++i)
-        for (int j = 0; j < m_width; ++j)
-        {
-            vec3 v = m_imageData[index++];
-            vec3 c = clamp(v, 0.f, 1.f) * 255.0f;
-            colour.rgbRed = (BYTE)c.r;
-            colour.rgbGreen = (BYTE)c.g;
-            colour.rgbBlue = (BYTE)c.b;
-            FreeImage_SetPixelColor(bitmap, j, i, &colour);
-        }
-    FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(imageFileName.c_str());
-    if (fif == FIF_UNKNOWN)
-        fif = FIF_PNG;
-    if (!FreeImage_Save(fif, bitmap, imageFileName.c_str()))
-    {
-        cout << "FreeImage failed to write image " << imageFileName << endl;
-        FreeImage_DeInitialise();
-        return false;
-    }
-    FreeImage_DeInitialise();
-
-    return true;
-#endif
-
-    return false;
 }
 
 // --------------------------------------------------------------------------

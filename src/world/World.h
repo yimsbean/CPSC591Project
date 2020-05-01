@@ -46,14 +46,15 @@ public:
     Whitted*			bubble_tracer_ptr = nullptr;    //for OLD METHOD
 
     RayCast*			background_tracer_ptr = nullptr;
-    Image*              refelctivity_image = nullptr;
+    Image*              reflectivity_image = nullptr;
 
     std::vector<Light*> lights;
     std::vector<Object*> objects;
 
     std::vector<Object*> bubbles;
 
-    float init_bubble_thickness = 22;
+    int cube_edge_length = 60;	//each length of cube edge
+    float init_bubble_thickness = 23;
     float bubble_thickness; //0~2000nm,*10nm,
     //int texture_a = 120;
     //std::vector<Image*> bubbleTextures;
@@ -101,6 +102,8 @@ public:
     void
     add_bubble_thickness(float degree);
 
+    void
+    thickness_reset();
 private:
     
     void

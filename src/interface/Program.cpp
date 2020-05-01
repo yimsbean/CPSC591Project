@@ -14,11 +14,16 @@ Program::~Program()
 void 
 Program::start() {
 	//Main render loop
+		// PINHOLE CAMERA!
+	auto& camera = world->camera;
 	while(!glfwWindowShouldClose(window)) {
 		//world->draw();
-		glfwWaitEventsTimeout(1);
 		//glfwSwapBuffers(window);
+
+		glfwWaitEventsTimeout(1);
 		//glfwPollEvents();
+
+		//camera.add_camera(2.f, 0.f);
 	}
 }
 //private ---------
@@ -40,8 +45,8 @@ Program::setupWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	int width = 640;
-	int height = 480;
+	int width = 400;
+	int height = 400;
 	window = glfwCreateWindow(width, height, "CPSC 591 Project", 0, 0);
 	if (!window) {
 		std::cout << "Program failed to create GLFW window, TERMINATING" << std::endl;
@@ -104,12 +109,12 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			case GLFW_KEY_1:
 				(program->getWorld())->loadScene(1);
 				return;
-			case GLFW_KEY_2:
-				(program->getWorld())->loadScene(2);
-				return;
-			case GLFW_KEY_3:
-				(program->getWorld())->loadScene(3);
-				return;
+			//case GLFW_KEY_2:
+			//	(program->getWorld())->loadScene(2);
+			//	return;
+			//case GLFW_KEY_3:
+			//	(program->getWorld())->loadScene(3);
+			//	return;
 			case GLFW_KEY_LEFT_SHIFT:
 				program->isShiftPressed = true;
 				return;
@@ -137,15 +142,33 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			case GLFW_KEY_D:
 				camera.add_yaw(-DEGREE);break;
 			
-			//moving "eye" on the surface of "view" sphere
+			
+			//add_camera = moving "eye" on the surface of "view" sphere
+			//move_camera = moving "lookat"
 			case GLFW_KEY_UP:
-				camera.add_camera(0.f, DEGREE);break;
+				if(mods != GLFW_MOD_SHIFT)
+					camera.add_camera(0.f, DEGREE);
+				else
+					camera.move_camera(0.f, DEGREE);
+				break;
 			case GLFW_KEY_DOWN:
-				camera.add_camera(0.f, -DEGREE);break;
+				if(mods != GLFW_MOD_SHIFT)
+					camera.add_camera(0.f, -DEGREE);
+				else
+					camera.move_camera(0.f, -DEGREE);
+				break;
 			case GLFW_KEY_LEFT:
-				camera.add_camera(-DEGREE, 0.f);break;
+				if(mods != GLFW_MOD_SHIFT)
+					camera.add_camera(-DEGREE, 0.f);
+				else
+					camera.move_camera(-DEGREE, 0.f);
+				break;
 			case GLFW_KEY_RIGHT:
-				camera.add_camera(DEGREE, 0.f);break;
+				if(mods != GLFW_MOD_SHIFT)
+					camera.add_camera(DEGREE, 0.f);
+				else
+					camera.move_camera(DEGREE, 0.f);
+				break;
 				//zooming in/out "view" sphere
 			case GLFW_KEY_PAGE_UP:
 				camera.add_zoom(-DEGREE);break;
@@ -166,7 +189,9 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 					camera.move(-DEGREE);
 				break;
 			case GLFW_KEY_R:
-				camera.reset();break;
+				camera.reset();
+				world->thickness_reset();
+				break;
 			//------
 			//change bubble thickness
 			case GLFW_KEY_KP_ADD:

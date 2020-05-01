@@ -25,6 +25,8 @@ class Bubble2: public Material {
     virtual Color										
 	shade(ShadeRec& sr);
     
+    //---
+
     Color
     reflectivityShade(ShadeRec& sr);
     
@@ -33,6 +35,9 @@ class Bubble2: public Material {
     
     Color
     lighting(ShadeRec& sr);
+
+    Color
+    shade_bubble(ShadeRec& sr, Color l_it);
 
     private:
 	 Bubble_BRDF*		bubble_brdf;

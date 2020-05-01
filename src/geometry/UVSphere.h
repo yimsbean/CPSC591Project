@@ -11,7 +11,7 @@ class UVSphere : public Object{
     //@basics(constructor, desturctor, ...)
         UVSphere();
         UVSphere(const UVSphere& sp);
-        UVSphere(const glm::vec3& center, float radius, const glm::vec3& cameraLocation);
+        UVSphere(const glm::vec3& center, float radius);
         
         virtual ~UVSphere();
 
@@ -47,7 +47,6 @@ class UVSphere : public Object{
     //@variables
         glm::vec3   center;
         float       radius;
-        glm::vec3   cameraLocation;
     //@basics(constructor, desturctor, ...)
 
     //@functions

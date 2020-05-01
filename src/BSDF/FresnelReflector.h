@@ -10,7 +10,6 @@
 // with reflective materials 
 
 #include "BRDF.h"
-#include "Constants.h"
 
 namespace Engine{
 //used in bubble(material)

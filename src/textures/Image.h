@@ -41,6 +41,7 @@ class Image {
 		
 		void
 		set_color(const int row, const int col,const Color c);
+
 	private:
 		int 					hres;			// horizontal resolution of image
 		int						vres;			// vertical resolution of image

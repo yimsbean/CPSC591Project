@@ -10,20 +10,17 @@ namespace Engine{
 UVSphere::UVSphere():
 	Object(),
 	center(glm::vec3(0.f)),
-	radius(1.f),
-	cameraLocation(0.f)
+	radius(1.f)
 {}
 UVSphere::UVSphere(const UVSphere& sp):
 	Object(),
 	center(sp.center),
-	radius(sp.radius),
-	cameraLocation(sp.cameraLocation)
+	radius(sp.radius)
 {}
-UVSphere::UVSphere (const glm::vec3& center, float radius, const glm::vec3& cameraLocation):
+UVSphere::UVSphere (const glm::vec3& center, float radius):
 	Object(),
 	center(center),
-	radius(radius),
-	cameraLocation(cameraLocation)
+	radius(radius)
 {}
 
 UVSphere::~UVSphere() 
@@ -37,7 +34,7 @@ UVSphere::clone () const {
 UVSphere& 
 UVSphere::operator= (const UVSphere& rhs) {
 	if (this == &rhs) return (*this);
-	Object::operator=(rhs); center=rhs.center; radius=rhs.radius; cameraLocation = rhs.cameraLocation;
+	Object::operator=(rhs); center=rhs.center; radius=rhs.radius;
 	return (*this);
 }
 
@@ -83,19 +80,18 @@ UVSphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 		//float PHI = glm::atan(y/x);
 		//float THETA = glm::acos(z);
 
-		
 		// -PI <= THETA <= PI  , -PI/2 <= PHI <= PI/2
 		
-		float PHI = glm::asin(y);
-		float xdivcosphi = x/glm::cos(PHI);
+		float PHI = asin(y);
+		float xdivcosphi = x/cos(PHI);
 		float THETA;
 		if(xdivcosphi > -1.f && xdivcosphi < 1.f){
-			THETA = glm::acos(xdivcosphi);
+			THETA = acos(xdivcosphi);
 		}else{
-			THETA = glm::acos(1); // == 0
+			THETA = acos(1); // == 0
 		}
-
 		
+		/*
 		//0 ~ M_PI/2
 		if(x>=0 && z>=0)
 			THETA *= 1;
@@ -108,7 +104,10 @@ UVSphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 		//-M_PI/2 ~ -M_PI
 		else if(x<0 && z<0)
 			THETA *= -1;
-		
+		*/
+		if(z<0)
+			THETA *= -1;
+			
 		//-M_PI ~ M_PI
 		//-1 <= x,y <= 1
 		float dx = THETA / M_PI;

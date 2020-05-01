@@ -25,7 +25,10 @@ Bubble_BRDF::clone(void) const {
 
 Color
 Bubble_BRDF::f(const ShadeRec& sr, const glm::vec3& wo, const glm::vec3& wi) const {
-	return cd->get_color(sr);
+	if(cd == nullptr)
+		return black;
+	else
+		return cd->get_color(sr);
 }
 // ---------------------------------------------------------- rho
 

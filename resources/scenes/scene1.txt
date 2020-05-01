@@ -17,7 +17,7 @@
   "objects" : {
     "sphereB1": {
       "__comment" : "# main bubble",
-      "type": "bubble2",
+      "type": "bubble",
       "geometry": [3,0,-12, 4],
       "color": "0xFFFFFFFF",
       "material" : "bubble",

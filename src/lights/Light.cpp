@@ -1,6 +1,5 @@
 #include "Light.h"
 
-#include "Constants.h"
 namespace Engine {
 // ---------------------------------------------------------------------- default constructor
 

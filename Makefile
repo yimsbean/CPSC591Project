@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS= -std=c++17 -O3 -g
+CXXFLAGS= -std=c++17 -O3
 LINKFLAGS= -lglfw -lGLU -lGL -ldl -lpthread
 
 #debug = true
@@ -41,6 +41,8 @@ INCDIR:=$(patsubst %, -I%,$(SRCDIRS))
 
 EXECUTABLE= program.out
 
+#frequently changed headers
+HEADERS=$(SRCDIR)/utilities/Constants.h
 #----------------------------------------------------------
 
 all: buildDirectories $(EXECUTABLE) 
@@ -56,7 +58,7 @@ $(OBJDIR)/specrend.o: $(LIBDIR)/specrend.c
 $(OBJDIR)/glad.o: $(GLADDIR)/glad.c
 	$(CXX) -c $(CXXFLAGS) $(LIBDIRS) $< -o $@
 
-$(OBJDIR)/%.o : %.cpp
+$(OBJDIR)/%.o : %.cpp $(HEADERS)
 	$(CXX) -c $(CXXFLAGS) $(INCDIR) $(LIBDIRS) $< -o $@ 
 
 #all other cpp files

@@ -59,12 +59,10 @@ public:
     void SetPixel(int x, int y, glm::vec3 colour);
     void AdditiveBlendPixel(int x, int y, glm::vec3 colour);
     void MultiplicativeBlendPixel(int x, int y, glm::vec3 colour);
+    void SetPixelOnLight(int x, int y, glm::vec3 colour);
     void SetPixelColourInRange(int index);
     // call this in your render function to copy this image onto your screen
     void Render();
-
-    // call this at the end of your render to save the image to file
-    bool SaveToFile(const std::string &imageFileName);
 };
 
 // --------------------------------------------------------------------------

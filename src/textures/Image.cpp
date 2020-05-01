@@ -2,7 +2,6 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "Constants.h"   // defines red
 #include "Image.h"
 namespace Engine{
 // ---------------------------------------------------- default constructor

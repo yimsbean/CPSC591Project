@@ -1,5 +1,4 @@
 #pragma once
-// base class of all objects
 
 #include "Constants.h"
 
@@ -53,7 +52,7 @@ class Object {
     protected:
     //@variables
         // mutable allows the const functions Compound::hit, Instance::hit, and RegularGrid::hit to assign to material_ptr
-        mutable Material*   material_ptr;
+        mutable Material*   material_ptr = nullptr;
         // only used for Bare Bones ray tracing
 		Color   			color;
 

@@ -78,7 +78,7 @@ World::generateReflectivityTexture(){
 			texture->set_color(i,j,L);
 		}
 	}
-	refelctivity_image = texture;
+	reflectivity_image = texture;
 	//image.Render();
 }
 void
@@ -106,6 +106,7 @@ World::readFromSceneFile(const char* fileName){
 			camera.set_lookat(elm["lookat"][0].get<float>(),elm["lookat"][1].get<float>(),elm["lookat"][2].get<float>());
 			camera.set_up(elm["up"][0].get<float>(),elm["up"][1].get<float>(),elm["up"][2].get<float>());
 			camera.set_fov(elm["fov"].get<float>());
+			camera.recalcUVW();
 		}
 		//LOAD LIGHTS
 		else if(element.key() == "lights"){
@@ -216,42 +217,41 @@ World::readFromSceneFile(const char* fileName){
 					objects.push_back(obj);
 				}
 				else if(elm["type"] == "bubble"){
-					auto pt = elm["geometry"];
-					Sphere* obj= new Sphere(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
-						pt[3].get<float>()
-					);
+					if(RENDER_OLD_METHOD){
+						auto pt = elm["geometry"];
+						Sphere* obj= new Sphere(
+							glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
+							pt[3].get<float>()
+						);
 
-					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
-					//obj->set_color(color);
-					Material* mat;
-					
-                    Bubble* matte = new Bubble();
-                    //Water(bubble) Refraction coefficient = 1.33
-                    matte->set_eta(1/1.03);
-                    matte->set_cf(white);
-                    mat = matte;
-					
-					obj->set_material(mat);
-					bubbles.push_back(obj);
-				}	
-				else if(elm["type"] == "bubble2"){
-					auto pt = elm["geometry"];
-					UVSphere* obj= new UVSphere(
-						glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
-						pt[3].get<float>(),
-						camera.get_eye()
-					);
-					Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
-					//obj->set_color(color);
-					Material* mat;
-					
-                    Bubble2* matte = new Bubble2();					
-					//set cd(texture) later
-                    mat = matte;
-					obj->set_material(mat);
-					bubbles.push_back(obj);
-				}	
+						Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
+						//obj->set_color(color);
+						Material* mat;
+						
+						Bubble* matte = new Bubble();
+						//Water(bubble) Refraction coefficient = 1.33
+						matte->set_eta(1/1.03);
+						matte->set_cf(white);
+						mat = matte;
+						
+						obj->set_material(mat);
+						bubbles.push_back(obj);
+					}else{
+						auto pt = elm["geometry"];
+						UVSphere* obj= new UVSphere(
+							glm::vec3(pt[0].get<float>(),pt[1].get<float>(),pt[2].get<float>()),
+							pt[3].get<float>()
+						);
+						Color color = Color((int)std::stoul(elm["color"].get<std::string>(), nullptr, 16));
+						//obj->set_color(color);
+						Material* mat;
+						Bubble2* matte = new Bubble2();					
+						//set cd(texture) later
+						mat = matte;
+						obj->set_material(mat);
+						bubbles.push_back(obj);
+					}
+				}
 			}
 		}
     }
