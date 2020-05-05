@@ -1,10 +1,12 @@
 #include "Program.h"
 #include <mutex>
 
+//initialization of extern variables defined in Constants.h
 bool DEBUG_RADIANCE_TEXTURE=false;
 bool DEBUG_CUBEMAP_TEXTURE=false;
 bool RENDER_OLD_METHOD=false;
 bool OPTIMIZED_METHOD=true;
+int LIGHT_TEXTURE_METHOD = 0;
 
 
 namespace Engine{
@@ -127,6 +129,27 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				break;
 			case GLFW_KEY_4:
 				OPTIMIZED_METHOD ^= true;
+				world->loadScene(1);
+				break;
+			//light texture
+			case GLFW_KEY_F1:
+				LIGHT_TEXTURE_METHOD = 0;
+				world->generateReflectivityTexture();
+				world->loadScene(1);
+				break;
+			case GLFW_KEY_F2:
+				LIGHT_TEXTURE_METHOD = 1;
+				world->generateReflectivityTexture();
+				world->loadScene(1);
+				break;
+			case GLFW_KEY_F3:
+				LIGHT_TEXTURE_METHOD = 2;
+				world->generateReflectivityTexture();
+				world->loadScene(1);
+				break;
+			case GLFW_KEY_F4:
+				LIGHT_TEXTURE_METHOD = 3;
+				world->generateReflectivityTexture();
 				world->loadScene(1);
 				break;
 			//case GLFW_KEY_2:

@@ -20,7 +20,10 @@
 #define DEBUG_CAMERA false
 #define DEBUG_TIME true
 
-//TEXTURE DEBUGGINB
+
+//Initialization of Extern variables are defined in Program.cpp
+
+//TEXTURE DEBUGGING
 //#define DEBUG_RADIANCE_TEXTURE false
 //#define DEBUG_CUBEMAP_TEXTURE false
 
@@ -33,3 +36,5 @@ extern bool RENDER_OLD_METHOD;
 //2. 3-step divide and conquering problem
 //#define OPTIMIZED_METHOD false
 extern bool OPTIMIZED_METHOD;
+
+extern int LIGHT_TEXTURE_METHOD;

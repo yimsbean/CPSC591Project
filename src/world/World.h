@@ -104,6 +104,10 @@ public:
 
     void
     thickness_reset();
+    
+    void
+    generateReflectivityTexture();
+    
 private:
     
     void
@@ -117,9 +121,6 @@ private:
 
     void
     reset();
-
-    void
-    generateReflectivityTexture();
 };
 
 }

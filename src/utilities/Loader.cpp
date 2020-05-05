@@ -60,8 +60,15 @@ World::generateReflectivityTexture(){
 	double red_led_light_wavelength = 625;		//625nm
 	double limegreen_led_light_wavelength = 656;	//656nm
 	double orange_led_light_wavelength = 605;	//605nm
-
-	double light_wavelength = sodium_light_wavelength;
+	
+	double lights[]={
+		sodium_light_wavelength,
+		blue_led_light_wavelength,
+		green_led_light_wavelength,
+		red_led_light_wavelength
+	};
+	std::cout<<LIGHT_TEXTURE_METHOD<<"@\n";
+	double light_wavelength = lights[LIGHT_TEXTURE_METHOD];
 
 	Image* texture = new Image(wid,hei);
 	for(int j=0;j<hei;++j){

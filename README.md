@@ -61,6 +61,7 @@ $ ./program.out
 | Space/SHIFT+Space             | Move camera forward/backward to centre point   |
 | [/]                           | Decrease/Increase FOV  |
 | -/+                           | Decrease/Increase bubble's thickness |
+| F1/F2/F3/F4                   | Light source's wavelength, yellow(default)/blue/green/red |
 
 ```
 
