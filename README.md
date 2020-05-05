@@ -5,6 +5,8 @@
 ## About
 Real-time rendering of soap-bubble with light interference effect
 
+![Rendered Soap-bubble, reflection, transparent, light interference effect visible](image.png)
+
 ## Short Description
 Method of rendering soap-bubble in real time, with light interference effect
 
