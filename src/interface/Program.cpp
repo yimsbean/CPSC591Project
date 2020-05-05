@@ -1,5 +1,12 @@
 #include "Program.h"
 #include <mutex>
+
+bool DEBUG_RADIANCE_TEXTURE=false;
+bool DEBUG_CUBEMAP_TEXTURE=false;
+bool RENDER_OLD_METHOD=false;
+bool OPTIMIZED_METHOD=true;
+
+
 namespace Engine{
 //#Program =========
 //Constructor
@@ -40,9 +47,10 @@ Program::setupWindow() {
 	//Errors will be printed to the console
 	glfwSetErrorCallback(&ErrorCallback);
 
-	//Attempt to create a window with an OpenGL 4.6 core profile context
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	//Attempt to create a window with an OpenGL 3.5 core profile context
+	//GLFW_MAJOR_VERSION, GLFW_MINOR_VERSION defined in utilities/Constants.h
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLFW_MAJOR_VERSION);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLFW_MINOR_VERSION);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	int width = 400;
@@ -58,7 +66,7 @@ Program::setupWindow() {
 	glfwSetKeyCallback(window, &KeyCallback);
 	//glfwSetMouseButtonCallback(window, &MouseCallback);
 	//glfwSetCursorPosCallback(window, &MousePositionCallback);
-	glfwSetScrollCallback(window, &MouseScrollCallback);
+	//glfwSetScrollCallback(window, &MouseScrollCallback);
 
 	//Bring the new window to the foreground (not strictly necessary but convenient)
 	glfwMakeContextCurrent(window);
@@ -101,27 +109,38 @@ void
 KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if(action == GLFW_PRESS){
 		Program * program = (Program*)glfwGetWindowUserPointer(window);
+		auto* world = program->getWorld();
 		//ESC / scenechange
 		switch(key){
 			case GLFW_KEY_ESCAPE:
 				glfwSetWindowShouldClose(window, GL_TRUE); 
 				return;
 			case GLFW_KEY_1:
-				(program->getWorld())->loadScene(1);
-				return;
+				DEBUG_RADIANCE_TEXTURE ^= true;
+				break;
+			case GLFW_KEY_2:
+				DEBUG_CUBEMAP_TEXTURE ^= true;
+				break;
+			case GLFW_KEY_3:
+				RENDER_OLD_METHOD ^= true;
+				world->loadScene(1);
+				break;
+			case GLFW_KEY_4:
+				OPTIMIZED_METHOD ^= true;
+				world->loadScene(1);
+				break;
 			//case GLFW_KEY_2:
 			//	(program->getWorld())->loadScene(2);
 			//	return;
 			//case GLFW_KEY_3:
 			//	(program->getWorld())->loadScene(3);
 			//	return;
-			case GLFW_KEY_LEFT_SHIFT:
-				program->isShiftPressed = true;
-				return;
+			//case GLFW_KEY_LEFT_SHIFT:
+			//	program->isShiftPressed = true;
+			//	return;
 		}
 		//camera movement
 		float DEGREE = 4.f;
-		auto* world = program->getWorld();
 		// PINHOLE CAMERA!
 		auto& camera = world->camera;
 		switch(key){
@@ -141,8 +160,6 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				camera.add_yaw(DEGREE);break;
 			case GLFW_KEY_D:
 				camera.add_yaw(-DEGREE);break;
-			
-			
 			//add_camera = moving "eye" on the surface of "view" sphere
 			//move_camera = moving "lookat"
 			case GLFW_KEY_UP:
@@ -200,8 +217,6 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			case GLFW_KEY_KP_SUBTRACT:
 			case GLFW_KEY_MINUS:
 				world->add_bubble_thickness(-DEGREE);break;
-
-			default: return;
 		}
 		if(DEBUG_CAMERA){
 			std::cout<<
@@ -221,6 +236,9 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		}
 	}
 }
+
+
+//NOT USED
 /**
  * Checks if mouse is pressed or not.
  * If mouse is pressed, record mouse coordinates.
@@ -240,6 +258,7 @@ MouseCallback(GLFWwindow* window,int button, int action, int mods) {
         }
     }
 }
+//NOT USED
 /**
  * Cursor position for dragging.
  */
@@ -256,6 +275,7 @@ MousePositionCallback(GLFWwindow* window,double xpos,double ypos) {
 	}
 	program->mouseLocation = glm::vec2((float)xpos, (float)ypos);
 }
+//NOT USED
 /**
  * Scrolling zooms in and out
  */

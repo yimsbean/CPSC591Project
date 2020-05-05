@@ -54,10 +54,11 @@ void
 World::reset(){
 	image.Destroy();
 	image.Initialize();
-	camera.reset();
+	//camera.reset();
 	lights.clear();
 	objects.clear();
-	thickness_reset();
+	bubbles.clear();
+	//thickness_reset();
 }
 
 void 
@@ -115,6 +116,7 @@ World::render_background(){
 void
 World::render_bubble(){
 	auto t1 = std::chrono::high_resolution_clock::now();
+	auto t2 = std::chrono::high_resolution_clock::now();
 	//REPEAT THIS STEP FOR ALL BUBBLES in descending order from viewpoint
 	//for now test with 1 bubble
 	for(auto& bubble: bubbles){
@@ -159,7 +161,7 @@ World::render_bubble(){
 		
 		((Bubble2*)bubble->get_material())->set_cd(texture_ptr);
 		
-
+		t2 = std::chrono::high_resolution_clock::now();
 		Color R, Li;
 		ray.o = camera.get_eye();
 		for (int r = 0; r < HEIGHT; r++){			// up
@@ -226,8 +228,12 @@ World::render_bubble(){
 		}
 	}
 	if(DEBUG_TIME){
-		auto t2 = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+		auto t3 = std::chrono::high_resolution_clock::now();
+		auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+		auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>( t3 - t2 ).count();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t3 - t1 ).count();
+		std::cout<<"Bubble Texture Generation: "<< duration1 <<"ms, ";
+		std::cout<<"Rendering Bubble: "<< duration2 <<"ms, ";
 		std::cout<<"Bubble Rendering Finished : "<< duration <<"ms\n";
 	}
 }
