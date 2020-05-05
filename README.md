@@ -22,10 +22,10 @@ Short result
 
 ## Compiling and Running
 
-code is set at opengl ver 4.0, so if OpenGL version error is found in compiling stage, fix following files:
+code is set at opengl ver 3.3, so if OpenGL version error is found in compiling stage, fix following files:
 - src/utilities/Constants.h
-    - GLFW_MAJOR_VERSION
-    - GLFW_MINOR_VERSION
+    - GLFW_MAJOR_VERSION (@ubuntu 18.04, value should be 3)
+    - GLFW_MINOR_VERSION (@ubuntu 18.04, value should be 3)
 
 
 1. initialize git submodules first

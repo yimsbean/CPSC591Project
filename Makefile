@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS= -std=c++17 -O3
-LINKFLAGS= -lglfw -lGLU -lGL -ldl -lpthread
+LINKFLAGS= -lglfw -lGLU -lGL -ldl
 
 #debug = true
 ifdef debug
@@ -48,7 +48,7 @@ HEADERS=$(SRCDIR)/utilities/Constants.h
 all: buildDirectories $(EXECUTABLE) 
 
 $(EXECUTABLE): $(OBJLIST) 
-	$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIRS)
+	$(CXX) $(CXXFLAGS) $(OBJLIST) -o $@ $(LIBS) $(LIBDIRS) $(LINKFLAGS)
  
 #spedcrend(wavelength->rgb)
 $(OBJDIR)/specrend.o: $(LIBDIR)/specrend.c

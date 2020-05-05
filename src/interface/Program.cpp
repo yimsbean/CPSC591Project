@@ -47,7 +47,7 @@ Program::setupWindow() {
 	//Errors will be printed to the console
 	glfwSetErrorCallback(&ErrorCallback);
 
-	//Attempt to create a window with an OpenGL 3.5 core profile context
+	//Attempt to create a window with an OpenGL 3.3 core profile context
 	//GLFW_MAJOR_VERSION, GLFW_MINOR_VERSION defined in utilities/Constants.h
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLFW_MAJOR_VERSION);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLFW_MINOR_VERSION);

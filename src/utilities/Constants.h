@@ -13,8 +13,8 @@
 //just in case for including cmath, for M_PI value
 #define _USE_MATH_DEF  
 #define EPSILON 0.000001
-#define GLFW_MAJOR_VERSION 4
-#define GLFW_MINOR_VERSION 0
+#define GLFW_MAJOR_VERSION 3
+#define GLFW_MINOR_VERSION 3
 //#include <iostream>
 
 #define DEBUG_CAMERA false
