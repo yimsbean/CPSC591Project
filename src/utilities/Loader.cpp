@@ -25,16 +25,17 @@ float
 get_cos_lambda_theta(float lambda, float theta, float d){
 	float cos_lambda_theta,r_lambda_theta;
 	float r_parallel,r_perpendicular,cos_theta_i,cos_theta_t;
-	float eta = 1.33;
+	float eta = 1.333;
 
-	cos_theta_i = glm::cos(theta);
+	cos_theta_i = cos(theta);
 	cos_theta_t = sqrt (1.0 - (1.0 - cos_theta_i * cos_theta_i) / (eta * eta));
-	r_parallel 		= (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
 	r_perpendicular = (cos_theta_i - eta * cos_theta_t) / (cos_theta_i + eta * cos_theta_t);
+	r_parallel 		= (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
 
-	cos_lambda_theta = 4*M_PI/lambda*eta*d*cos_theta_i;
-	return pow(r_parallel,2)*(1-cos_lambda_theta)/(1+pow(r_parallel,4)-2*pow(r_parallel,2)*cos_lambda_theta) +
-		pow(r_perpendicular,2)*(1-cos_lambda_theta)/(1+pow(r_perpendicular,4)-2*pow(r_perpendicular,2)*cos_lambda_theta);
+	//J. Li, Q. Peng, A New Illumination Model for Scenes Containing Thin Film Interference, 1996 [2]
+	cos_lambda_theta = cos((4*M_PI/lambda)*eta*d*cos_theta_i);
+	return 2*pow(r_perpendicular,2)*(1-cos_lambda_theta)/(1+pow(r_perpendicular,4)-2*pow(r_perpendicular,2)*cos_lambda_theta) +
+		2*pow(r_parallel,2)*(1-cos_lambda_theta)/(1+pow(r_parallel,4)-2*pow(r_parallel,2)*cos_lambda_theta);
 			
 }
 void
@@ -43,44 +44,60 @@ World::generateReflectivityTexture(){
 	//y = 0~90(degree), each 1deg
 	Color L;
 	int wid = 201, hei = 91;
-	int dx = 10, dy = 1;
+	float dx = 10, dy = 1;
 	float ddx,ddy;
 
-	//http://www.fourmilab.ch/documents/specrend
+	//http://www.fourmilab.ch/documents/specrend [3]
 	double x,y,z,r,g,b;
 	struct colourSystem *cs = &SMPTEsystem;
 	
-	//https://en.wikipedia.org/wiki/Sodium-vapor_lamp
-	//double bbtemp = 2700; //2600K~2800K for the sodium lamp
-	double sodium_light_wavelength = 589;	//589 nm
-	//https://www.photonics.com/Articles/Light-Emitting_Diodes_A_Primer/a36706
+	//https://www.photonics.com/Articles/Light-Emitting_Diodes_A_Primer/a36706 [4]
 	double blue_led_light_wavelength = 475;		//450~475nm
 	double green_led_light_wavelength = 525;	//520~530nm
 	double yellow_led_light_wavelength = 590;	//590nm
 	double red_led_light_wavelength = 625;		//625nm
-	double limegreen_led_light_wavelength = 656;	//656nm
-	double orange_led_light_wavelength = 605;	//605nm
-	
-	double lights[]={
-		sodium_light_wavelength,
-		blue_led_light_wavelength,
-		green_led_light_wavelength,
-		red_led_light_wavelength
-	};
-	std::cout<<LIGHT_TEXTURE_METHOD<<"@\n";
-	double light_wavelength = lights[LIGHT_TEXTURE_METHOD];
+
+	//https://en.wikipedia.org/wiki/CIE_1931_color_space
+	double CIE_STANDARD_OBSERVER_WAVELENGTH_MIN = 380;
+	double CIE_STANDARD_OBSERVER_WAVELENGTH_MAX = 780;
 
 	Image* texture = new Image(wid,hei);
+	
 	for(int j=0;j<hei;++j){
 		for(int i=0;i<wid;++i){
 			//R(λ, θ, d)E(λ), x = d, y = θ
 			ddx = dx * i;			// x = d
 			ddy = glm::radians((float)dy * j);	// y = θ
-			
-			spectrum_to_xyz(light_wavelength,&x, &y, &z);
-       		xyz_to_rgb(cs, x, y, z, &r, &g, &b);
-			L = Color(r,g,b)*get_cos_lambda_theta(light_wavelength,ddy,ddx);
-
+			L = Color(0.f,0.f,0.f);
+			switch(LIGHT_TEXTURE_METHOD){
+				case 0: {
+					for(int k=CIE_STANDARD_OBSERVER_WAVELENGTH_MIN;k<CIE_STANDARD_OBSERVER_WAVELENGTH_MAX; k+=dx){
+						spectrum_to_xyz(k,&x, &y, &z);
+						xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+						L += Color(r,g,b)*get_cos_lambda_theta(k,ddy,ddx)/((CIE_STANDARD_OBSERVER_WAVELENGTH_MAX-CIE_STANDARD_OBSERVER_WAVELENGTH_MIN)/dx);
+					}
+				}break;
+				case 1:{
+					spectrum_to_xyz(blue_led_light_wavelength,&x, &y, &z);
+					xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+					L = Color(r,g,b)*get_cos_lambda_theta(blue_led_light_wavelength,ddy,ddx);
+				}break;
+				case 2:{
+					spectrum_to_xyz(green_led_light_wavelength,&x, &y, &z);
+					xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+					L = Color(r,g,b)*get_cos_lambda_theta(green_led_light_wavelength,ddy,ddx);
+				}break;
+				case 3:{
+					spectrum_to_xyz(yellow_led_light_wavelength,&x, &y, &z);
+					xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+					L = Color(r,g,b)*get_cos_lambda_theta(yellow_led_light_wavelength,ddy,ddx);
+				}break;
+				case 4:{
+					spectrum_to_xyz(red_led_light_wavelength,&x, &y, &z);
+					xyz_to_rgb(cs, x, y, z, &r, &g, &b);
+					L = Color(r,g,b)*get_cos_lambda_theta(red_led_light_wavelength,ddy,ddx);
+				}break;
+			}
 			//image.SetPixel(i, j, glm::vec3(L.r,L.g,L.b));
 			texture->set_color(i,j,L);
 		}

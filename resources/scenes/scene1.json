@@ -27,7 +27,7 @@
       "__comment" : "# sphere 1",
       "type": "sphere",
       "geometry": [-2,1,-18, 2],
-      "color": "0xFFCC55CC",
+      "color": "0xFFFF00FF",
       "material" : "none",
       "texture" : "none"
     },
@@ -35,7 +35,7 @@
       "__comment" : "# sphere, outer, right, cyan",
       "type": "sphere",
       "geometry": [5,1,13, 2],
-      "color": "0xFF55CCCC",
+      "color": "0xFF00FFFF",
       "material" : "none",
       "texture" : "none"
     },
@@ -43,7 +43,7 @@
       "__comment" : "# sphere, outer, left, orange",
       "type": "sphere",
       "geometry": [-5,-3,12, 2],
-      "color": "0xFFCCCC55",
+      "color": "0xFFFFFF00",
       "material" : "none",
       "texture" : "none"
     },
@@ -51,7 +51,7 @@
       "__comment" : "# pyramid1",
       "type": "triangle",
       "geometry": [-2,-10,-18, -4,-10,-12, -8,-10,-15],
-      "color": "0xFF0000AA",
+      "color": "0xFF0000FF",
       "material" : "none",
       "texture" : "none"
     },
@@ -59,7 +59,7 @@
       "__comment" : "# pyramid2",
       "type": "triangle",
       "geometry": [-2,-10,-18, -6,1,-16, -4,-10,-12],
-      "color": "0xFF0000AA",
+      "color": "0xFF0000FF",
       "material" : "none",
       "texture" : "none"
     },
@@ -67,7 +67,7 @@
        "__comment" : "# pyramid3",
       "type": "triangle",
       "geometry": [-2,-10,-18, -8,-10,-15, -6,1,-16],
-      "color": "0xFF0000AA",
+      "color": "0xFF0000FF",
       "material" : "none",
       "texture" : "none"
     },
@@ -75,7 +75,7 @@
        "__comment" : "# pyramid4",
       "type": "triangle",
       "geometry": [-6,1,-16, -8,-10,-15, -4,-10,-12],
-      "color": "0xFF0000AA",
+      "color": "0xFF0000FF",
       "material" : "none",
       "texture" : "none"
     },
@@ -131,7 +131,7 @@
        "__comment" : "# Right Green wall 1",
       "type": "triangle",
       "geometry": [10,10,-10,10,10,-20,10,-10,-20],
-      "color": "0xFF00AA00",
+      "color": "0xFF00FF00",
       "material" : "none",
       "texture" : "none"
     },
@@ -139,7 +139,7 @@
        "__comment" : "# Right Green wall 2",
       "type": "triangle",
       "geometry": [10,-10,-10,10,10,-10,10,-10,-20],
-      "color": "0xFF00AA00",
+      "color": "0xFF00FF00",
       "material" : "none",
       "texture" : "none"
     },
@@ -147,7 +147,7 @@
       "__comment" : "# Left Red wall 1",
       "type": "triangle",
       "geometry": [-10,-10,-10,-10,-10,-20,-10,10,-20],
-      "color": "0xFFAA0000",
+      "color": "0xFFFF0000",
       "material" : "none",
       "texture" : "none"
     },
@@ -155,7 +155,7 @@
       "__comment" : "# Left Red wall 2",
       "type": "triangle",
       "geometry": [-10,10,-10,-10,-10,-10,-10,10,-20],
-      "color": "0xFFAA0000",
+      "color": "0xFFFF0000",
       "material" : "none",
       "texture" : "none"
     },
@@ -163,7 +163,7 @@
       "__comment" : "# Background wall",
       "type": "plane",
       "geometry": [0,0,-100,0,0,1],
-      "color": "0xFF112233",
+      "color": "0xFF333333",
       "material" : "none",
       "texture" : "none"
     }

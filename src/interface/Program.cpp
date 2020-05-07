@@ -152,6 +152,11 @@ KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 				world->generateReflectivityTexture();
 				world->loadScene(1);
 				break;
+			case GLFW_KEY_F5:
+				LIGHT_TEXTURE_METHOD = 4;
+				world->generateReflectivityTexture();
+				world->loadScene(1);
+				break;
 			//case GLFW_KEY_2:
 			//	(program->getWorld())->loadScene(2);
 			//	return;

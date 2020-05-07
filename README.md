@@ -46,7 +46,7 @@ $ ./program.out
 ## Controls
 ```
 | Key       | Commands |
-|:---------:|:--------:|
+|---------|--------|
 | Esc                           | Exit program   |
 | 1                             | Display Light texture map (Toggle)  |
 | 2                             | Display bubble's texture map (Toggle)  |
@@ -61,7 +61,7 @@ $ ./program.out
 | Space/SHIFT+Space             | Move camera forward/backward to centre point   |
 | [/]                           | Decrease/Increase FOV  |
 | -/+                           | Decrease/Increase bubble's thickness |
-| F1/F2/F3/F4                   | Light source's wavelength, yellow(default)/blue/green/red |
+| F1/F2/F3/F4/F5                | Light source's wavelength, default/blue/green/yellow/red |
 
 ```
 
@@ -76,12 +76,12 @@ Scenes are stored in json format
 [1] Real-time Rendering of Soap Bubbles Taking into Account Light Interference, K. Iwasaki, 2004, IEEE.
 (https://ieeexplore.ieee.org/document/1309231)
 
-[2] Colour Rendering of Spectra, John Walker, 1996
-(http://www.fourmilab.ch/documents/specrend)
+[2] J. Li, Q. Peng, “A New Illumination Model for Scenes Containing
+Thin Film Interference,” Proc. Pacific Graphics’96, pp.133-146,
+1996.
 
-[3] Low-Pressure Sodium Issues and FAQ, Christian B. Luginbuhl, 2007, NOFS
-(www.nofs.navy.mil/about_NOFS/staff/cbl/LPSnet/LPS-references.html)
-(https://web.archive.org/web/20070921011912/http://www.nofs.navy.mil/about_NOFS/staff/cbl/LPSnet/LPS-references.html) 
+[3] Colour Rendering of Spectra, John Walker, 1996
+(http://www.fourmilab.ch/documents/specrend)
 
 [4] Light Emitting Diodes: A primer
 (https://www.photonics.com/Articles/Light-Emitting_Diodes_A_Primer/a36706)

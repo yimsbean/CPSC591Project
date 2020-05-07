@@ -54,7 +54,7 @@ public:
     std::vector<Object*> bubbles;
 
     int cube_edge_length = 60;	//each length of cube edge
-    float init_bubble_thickness = 23;
+    float init_bubble_thickness = 100;
     float bubble_thickness; //0~2000nm,*10nm,
     //int texture_a = 120;
     //std::vector<Image*> bubbleTextures;

@@ -40,7 +40,7 @@ World::delete_world(){
 }
 void
 World::add_bubble_thickness(float deg){
-	auto degree = bubble_thickness + deg/4.f;
+	auto degree = bubble_thickness + deg;
 	if(!(degree > reflectivity_image->get_hres() && degree < 0))
 	bubble_thickness = degree;
 }
@@ -113,12 +113,12 @@ World::render_background(){
 	}
 }
 
+//Real-time Rendering of Soap Bubbles Taking into Account Light Interference, K. Iwasaki, 2004, IEEE. [1]
 void
 World::render_bubble(){
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
 	//REPEAT THIS STEP FOR ALL BUBBLES in descending order from viewpoint
-	//for now test with 1 bubble
 	for(auto& bubble: bubbles){
 		//some pre-calculations for speeding up
 		//float radius = ((UVSphere*)bubble)->get_radius();
@@ -183,7 +183,7 @@ World::render_bubble(){
 		//ADDITIVE => DST = DST + SRC
 				
 				//R(λ, θ)×Lir(λ)
-				//cube map color
+				//cube map colour
 				L = R * background_tracer_ptr->trace_object(ray, bubble);
 				image.AdditiveBlendPixel(c, r, glm::vec3(L.r,L.g,L.b));
 		
